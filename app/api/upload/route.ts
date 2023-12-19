@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false });
     }
 
+    console.log('what is file', uploadedFile);
+
     const bytes = await uploadedFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -27,6 +29,9 @@ export async function POST(request: NextRequest) {
         purpose: "assistants"
     });
 
+    console.log('file', file);
+
+    // created the assistant
     const assistant = await openai.beta.assistants.create({
         instructions: "You are a helpful assistant in parsing movie scripts. Provided a movie script document, please separate the script into character names, lines, and scene directions in order from top to bottom. Please put this into a JSON format.",
         model: "gpt-4-1106-preview",
@@ -34,23 +39,52 @@ export async function POST(request: NextRequest) {
         file_ids: [file.id]
     });
 
-    console.log('file', file);
-
     console.log('assistant', assistant);
 
-    console.log('what is file', uploadedFile);
-
-    const specific_assistant = openai.beta.assistants.retrieve(assistant.id);
-    console.log("assistant located");
-
+    // created a thread
     const thread = openai.beta.threads.create();
     console.log("thread created");
 
-    const messages = openai.beta.threads.messages.list((await thread).id);
+    const message = await openai.beta.threads.messages.create(
+        (await thread).id,
+        {
+            role: "user",
+            content: "I need you to parse the provided movie script.",
+            file_ids: [file.id]
+        }
+    )
 
-    console.log((await messages).data);
+    console.log('message', message);
 
+    // run the assistant
+    const run = await openai.beta.threads.runs.create(
+        (await thread).id,
+        {
+            assistant_id: assistant.id,
+            instructions: "Please return the response in a JSON object."
+        }
+    )
 
+    console.log('run', run);
+
+    // check the run status
+    const run_status = await openai.beta.threads.runs.retrieve(
+        (await thread).id,
+        run.id
+    );
+
+    console.log('run status', run);
+
+    // display the assistant's response
+    const messages = await openai.beta.threads.messages.list(
+        (await thread).id
+    );
+
+    console.log('messages', messages);
+
+    for (const content_item in messages.data[0].content) {
+        console.log(content_item);
+    }
 
 
     // file contains this
