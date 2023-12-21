@@ -33,58 +33,128 @@ export async function POST(request: NextRequest) {
 
     // created the assistant
     const assistant = await openai.beta.assistants.create({
-        instructions: "You are a helpful assistant in parsing movie scripts. Provided a movie script document, please separate the script into character names, lines, and scene directions in order from top to bottom. Please put this into a JSON format.",
+        // instructions: "You are a helpful assistant that will parse movie scripts provided in a PDF format. The format of the movie script will be of the following: lines will be center-aligned whereas scene directions will be left-aligned. Please separate character names, their lines, and scene directions in order from top to bottom. Please return this in a JSON object form.",
+        instructions: "You are a helpful assistant that will parse movie scripts. The provided file will be in PDF format. You will separate character names, their lines, and scene directions in order from top to bottom. ",
         model: "gpt-4-1106-preview",
         tools: [{ "type": "code_interpreter" }],
         file_ids: [file.id]
     });
+    // const assistant = await openai.beta.assistants.create({
+    //     name: "Math Tutor",
+    //     instructions: "You are a personal math tutor. Write and run code to answer math questions.",
+    //     tools: [{ type: "code_interpreter" }],
+    //     model: "gpt-4-1106-preview"
+    // });
+      
 
     console.log('assistant', assistant);
 
     // created a thread
-    const thread = openai.beta.threads.create();
+    // const thread = openai.beta.threads.create();
+    const thread = await openai.beta.threads.create();
     console.log("thread created");
 
     const message = await openai.beta.threads.messages.create(
         (await thread).id,
         {
             role: "user",
-            content: "I need you to parse the provided movie script.",
+            content: "Please take the provided file and return the separated information.",
             file_ids: [file.id]
         }
     )
+    // const message = await openai.beta.threads.messages.create(
+    //     thread.id,
+    //     {
+    //       role: "user",
+    //       content: "I need to solve the equation `3x + 11 = 14`. Can you help me?"
+    //     }
+    //   );
 
-    console.log('message', message);
+    // const messageList = await openai.beta.threads.messages.list(
+    //     thread.id
+    // )
+
+    // console.log('messagesList', messageList.data[0].content);
+
+    // console.log('message', message);
 
     // run the assistant
-    const run = await openai.beta.threads.runs.create(
+    let run = await openai.beta.threads.runs.create(
         (await thread).id,
         {
             assistant_id: assistant.id,
-            instructions: "Please return the response in a JSON object."
+            instructions: "Please return only the final output of your response."
         }
     )
 
-    console.log('run', run);
+    // let run = await openai.beta.threads.runs.create(
+    //     thread.id,
+    //     { 
+    //       assistant_id: assistant.id,
+    //       instructions: "Please address the user as Jane Doe. The user has a premium account."
+    //     }
+    // );
+    // console.log('run', run);
 
-    // check the run status
-    const run_status = await openai.beta.threads.runs.retrieve(
-        (await thread).id,
-        run.id
-    );
+    // const run_status = await openai.beta.threads.runs.retrieve(
+    //     thread.id,
+    //     run.id
+    // );
 
-    console.log('run status', run);
+    while (run.status !== "completed" && run.status !== "failed") {
+        run = await openai.beta.threads.runs.retrieve(
+            thread.id,
+            run.id
+        )
+        console.log('status', run.status);
+    }
+
+    let messages;
+
+    if (run.status == "completed") {
+        messages = await openai.beta.threads.messages.list(
+            thread.id
+        )
+
+        // messages.data is an array
+        for (let i = 0; i < messages.data.length; i++) {
+            console.log(messages.data[i].content)
+        }
+    }
+
+
+
+    // // check the run status
+    // const run_status = await openai.beta.threads.runs.retrieve(
+    //     (await thread).id,
+    //     run.id
+    // );
+
+    // console.log('run status', run_status);
 
     // display the assistant's response
-    const messages = await openai.beta.threads.messages.list(
-        (await thread).id
-    );
+    // const messages = await openai.beta.threads.messages.list(
+    //     (await thread).id
+    // );
 
-    console.log('messages', messages);
+    // const messages = await openai.beta.threads.messages.list(
+    //     thread.id
+    //   );
+    // console.log('messages', messages);
+    // messages is a ThreadMessagesPage Object with a data
 
-    for (const content_item in messages.data[0].content) {
-        console.log(content_item);
-    }
+    // console.log('messages.data', messages.body.data)
+    // data is an array
+
+    // console.log('content', messages.data[0].content[1]);
+
+    // for (let i = 0; i < messages.data.length; i++) {
+    //     console.log(messages.data[0])
+    // }
+
+    // for (const content_item in messages.data[0].content) {
+    //     console.log(content_item);
+    // }
 
 
     // file contains this
