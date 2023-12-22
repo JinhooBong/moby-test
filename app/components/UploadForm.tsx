@@ -16,7 +16,17 @@ export function UploadForm() {
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: data
+      }); 
+
+      const textResponse = await res.json();
+      const dataToParse = textResponse.message;
+      console.log('console text', dataToParse);
+
+      const parseRes = await fetch('/api/parser', {
+        method: 'POST',
+        body: dataToParse
       });
+
       // handle the error
       if (!res.ok) throw new Error(await res.text());
     } catch (e: any) {
