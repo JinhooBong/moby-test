@@ -33,6 +33,15 @@ export async function POST(request: NextRequest) {
           response_format: { type: "json_object" },
       });
 
+
+
+    /* ------------------------------------------------------- 
+    
+    BUG #1: the ordering is off by a little bit (at least with few testings I've done. It could prove to be a bigger bug as we keep testing)
+    BUG #2: the word "-DEMO-" is thrown into the response in at least one of the lines. This could be a result of using the demo version, and could be a simple fix as openAI releases and publishes? or could be something that I need to look into
+
+    --------------------------------------------------------*/
+
     console.log('returned msg', completion.choices[0].message.content);
 
     return NextResponse.json({ success: true })
