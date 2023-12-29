@@ -194,24 +194,26 @@ export async function POST( request: NextRequest ) {
     await writeFile(path, buffer)
     //   console.log(`open ${path} to see the uploaded file`)
 
-
     var pdfcrowd = require("pdfcrowd");
     var client = new pdfcrowd.PdfToTextClient("demo", "ce544b6ea52a5621fb9d55f8b542d14d");
-
+  
     client.convertFileToFile(
         path,
         "invoice.txt",
         function(err: string, fileName: string) {
             if (err) return console.error("Pdfcrowd Error: " + err);
+
             console.log("Success: the file was created " + fileName);
-    });
+    })
 
     let textData = '';
 
+
+    // PROBLEM HERE: is that invoice.txt is not being updated BEFORE being read.. 
     try {  
         // grabbed the text content from the file
         textData = fs.readFileSync('invoice.txt', 'utf8');
-        // console.log(textData.toString());    
+        console.log('text', textData.toString());    
     } catch(e: any) {
         console.log('Error:', e.stack);
     }

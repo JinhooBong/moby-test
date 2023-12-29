@@ -16,7 +16,7 @@ export function UploadForm() {
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: data
-      }); 
+      })
 
       const textResponse = await res.json();
       const dataToParse = textResponse.message;
