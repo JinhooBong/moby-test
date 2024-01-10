@@ -22,10 +22,10 @@ export function UploadForm() {
       const dataToParse = textResponse.message;
       console.log('console text', dataToParse);
 
-      const parseRes = await fetch('/api/parser', {
-        method: 'POST',
-        body: dataToParse
-      });
+    //   const parseRes = await fetch('/api/parser', {
+    //     method: 'POST',
+    //     body: dataToParse
+    //   });
 
       // handle the error
       if (!res.ok) throw new Error(await res.text());

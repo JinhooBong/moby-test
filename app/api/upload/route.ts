@@ -188,10 +188,14 @@ export async function POST( request: NextRequest ) {
     const bytes = await uploadedFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+
+    // console.log('buffer', buffer);
+    // console.log('buffertostring2222', buffer.toString('base64'));
+
     // With the file data in the buffer, you can do whatever you want with it.
     // For this, we'll just write it to the filesystem in a new location
     const path = `/tmp/${uploadedFile.name}`
-    await writeFile(path, buffer)
+    await writeFile(path, buffer);
     //   console.log(`open ${path} to see the uploaded file`)
 
     var pdfcrowd = require("pdfcrowd");
@@ -208,17 +212,27 @@ export async function POST( request: NextRequest ) {
 
     let textData = '';
 
+    const pdfParse = require('pdf-parse');
+    let readFile = fs.readFileSync(path);
+    try {
+        let pdfExtract = await pdfParse(readFile)
+        console.log('File content: ', pdfExtract.text)
+      } catch (error) {
+        console.error('error', error);
+      }
 
-    // PROBLEM HERE: is that invoice.txt is not being updated BEFORE being read.. 
-    /* ---------------------------------------------------------------------------
 
-    BUG #1: the problem here is that the file is converted AFTER the file is read 
-    so essentially we'lre reading the previously uploaded file instead of the current one
-    this is a result of async / await that i'll need to implement / fix
+    // // PROBLEM HERE: is that invoice.txt is not being updated BEFORE being read.. 
+    // /* ---------------------------------------------------------------------------
 
-    THIS IS A CRUCIAL BUG 
+    // BUG #1: the problem here is that the file is converted AFTER the file is read 
+    // so essentially we'lre reading the previously uploaded file instead of the current one
+    // this is a result of async / await that i'll need to implement / fix
 
-    ----------------------------------------------------------------------------*/ 
+    // THIS IS A CRUCIAL BUG 
+
+    // ----------------------------------------------------------------------------*/ 
+    
     try {  
         // grabbed the text content from the file
         textData = fs.readFileSync('invoice.txt', 'utf8');
