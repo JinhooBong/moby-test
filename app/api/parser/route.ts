@@ -1,4 +1,4 @@
-import { writeFile } from 'fs/promises';
+import { unlink } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import fs from "fs";
@@ -15,6 +15,9 @@ export async function POST(request: NextRequest) {
 
     // grab the script in text form 
     let scriptInTextForm = await new Response(data).text();
+
+    console.log('entered gpt');
+    // console.log('script', scriptInTextForm);
 
     // now we send scriptInTextForm to openAI's chat completion api
     const completion = await openai.chat.completions.create({
@@ -33,12 +36,12 @@ export async function POST(request: NextRequest) {
           response_format: { type: "json_object" },
       });
 
-
-
     /* ------------------------------------------------------- 
     
-    BUG #1: the ordering is off by a little bit (at least with few testings I've done. It could prove to be a bigger bug as we keep testing)
+    BUG #1: the ordering was incorrect with (ABS_script_4) it sections off "directions" and "dialogues" so this caused two separate entities - we want to keep it in order from top to bottom.. so maybe more strict instructions for openai
+
     BUG #2: the word "-DEMO-" is thrown into the response in at least one of the lines. This could be a result of using the demo version, and could be a simple fix as openAI releases and publishes? or could be something that I need to look into
+    --- this bug seemed to go away at least today? of the few that i've tested thus far it did not prove to be an issue.
 
     --------------------------------------------------------*/
 
