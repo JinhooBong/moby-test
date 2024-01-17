@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
         messages: [
             {
               role: "system",
-              content: "You are a helpful assistant that will parse movie scripts. This script will be provided as a body of text.",
+              content: "You are a helpful assistant that will parse movie scripts. This script will be provided as a body of text. You will parse it in order from top to bottom strictly. Please return the answer in the following format of a JSON object { \"lines\": } where the value will be either { \"directions\": \"\" } or { \"character\": \"\", \"line\": \"\"} where the separated values will go. ",
             },
             {
                 role: "system",
-                content:"Please separate character names, their lines, and scene directions in strict order from top to bottom. Please double check to make sure it's in order. Please return this in a JSON object. The objects should be of the following two object forms: An object with property direction for scene directions, and an object with properties character and line where the character name and their lines will reside."
+                content:"Please separate character names, their lines, and scene directions in strict order from top to bottom. Please double check to make sure it's in order. Please return this in a JSON object. The objects should be of the following two object forms: An object with property `direction` for scene directions, and an object with properties `character` and `line` where the character name and their lines will reside. Again please make sure that the lines stay in order from top to bottom."
             },
             { role: "user", content: scriptInTextForm },
           ],
@@ -47,5 +47,5 @@ export async function POST(request: NextRequest) {
 
     console.log('returned msg', completion.choices[0].message.content);
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, content: completion.choices[0].message.content })
 }

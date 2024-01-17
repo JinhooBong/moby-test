@@ -2,6 +2,19 @@ import { writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import PDFParser from 'pdf2json'; // To parse the pdf
 
+/* ------------------------------------------------------------------
+
+BUG: if the script uploaded is not clean.. if it's sort of messy, and 
+requires OCR , this PDF parser will not parse it. It won't recognize it 
+and instead will return EMPTY. 
+
+This can prove to be a big bug because we don't have control over the 
+documents that the user is uploading. It can range from a large variety
+proving to be a pretty big blocker.
+
+------------------------------------------------------------------- */
+
+
 export async function POST( request: NextRequest ) {
     const data = await request.formData();
     const uploadedFile: File | null = data.get('file') as unknown as File;
