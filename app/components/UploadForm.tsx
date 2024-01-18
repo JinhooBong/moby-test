@@ -2,10 +2,15 @@
 
 import { useState } from 'react';
 import { ScriptView } from './ScriptView';
+import { ScriptLineObject } from './ScriptLine';
+
+export interface ScriptObject {
+    lines: ScriptLineObject[]
+}
 
 export function UploadForm() {
     const [file, setFile] = useState<File>();
-    const [textContent, setTextContent] = useState({});
+    const [textContent, setTextContent] = useState<ScriptObject>();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -30,10 +35,10 @@ export function UploadForm() {
             });
 
             const parsedResponse = await parseRes.json();
-            const parsedData = parsedResponse.content;
+            const parsedData = JSON.parse(parsedResponse.content);
             console.log('parsed', parsedData);
             // this should be in format {"lines": [{direction} || {character}]}
-            setTextContent(parsedData);
+            parsedData ? setTextContent(parsedData) : setTextContent({ lines: [] })
 
             // handle the error
             if (!res.ok) throw new Error(await res.text());
@@ -46,7 +51,7 @@ export function UploadForm() {
 
     return (
         <div>
-            {Object.keys(textContent).length > 0 ? <ScriptView script={textContent} /> : <form onSubmit={onSubmit}>
+            {textContent !== undefined ? <ScriptView lines={textContent.lines} /> : <form onSubmit={onSubmit}>
             <input
                 type="file"
                 name="file"
