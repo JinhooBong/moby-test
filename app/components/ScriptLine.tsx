@@ -13,7 +13,7 @@ export const ScriptLine: React.FC<ScriptLineObject> = ({ direction, character, l
     } else {
         return (
             <div style={{width: "600px", textAlign: "center", margin: "auto"}}>
-                <h3>{character}</h3>
+                <h3 style={{ textDecoration: "underline" }}>{character}</h3>
                 <p>{line}</p>
             </div>
         )

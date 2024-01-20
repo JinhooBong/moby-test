@@ -1,7 +1,5 @@
-import { unlink } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import fs from "fs";
 
 export async function POST(request: NextRequest) {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
