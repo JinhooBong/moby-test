@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import the playht SDK
 import * as PlayHT from "playht";
-
-
+import fs from "fs";
 
 /* 
-    Using ELEVENLABS API to try incorporating TTS
+    Using PlayHT API to try incorporating TTS
 */
 export async function POST(request: NextRequest) {
+
+    // const fs = require('fs');
+    
     // Initialize PlayHT API with your credentials
     PlayHT.init({
         apiKey: process.env.PLAYHT_APIKEY! ,
@@ -31,22 +33,18 @@ export async function POST(request: NextRequest) {
 
     // start streaming!
     const text = "Hey, this is Jennifer from Play. Please hold on a moment, let me just um pull up your details real quick."
-    // Type 'string' is not assignable to type 'VoiceEngine'
-    
-    const stream = await PlayHT.stream(text, streamingOptions);
+
+    //  ⨯ Error: Cannot find module 'tls'
+
+    const stream = await PlayHT.stream(text, { voiceEngine: "PlayHT2.0-turbo", voiceId:
+    "s3://voice-cloning-zero-shot/d9ff78ba-d016-47f6-b0ef-dd630f59414e/female-cs/manifest.json", sampleRate: 24000,  outputFormat: 'mp3',  speed: 1,});
 
     stream.on("data", (chunk) => {
     // Do whatever you want with the stream, you could save it to a file, stream it in realtime to the browser or app, or to a telephony system
+        fs.writeFileSync("./audio.mp3", chunk);
+        console.log('wrote audio file')
     });
 
 }
 
-
-/* 
-{
-  detail: {
-    status: 'invalid_uid',
-    message: "An invalid ID has been received: '{voice_id}'. Make sure to provide a correct one."
-  }
-
-*/
+//  Error: Cannot find module 'tls'
