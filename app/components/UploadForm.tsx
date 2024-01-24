@@ -13,6 +13,17 @@ export function UploadForm() {
     const [textContent, setTextContent] = useState<ScriptObject>();
 
     const onClick = async () => {
+
+        // console.log('what is textContent', textContent);
+        // textContent is the object returned from chatgpt
+        // we need to pass this array (textContent.lines) into our TTS
+        // and then iterate through this array 
+        // and then find a way to stream the audio files immediately. 
+
+        // textContent.lines is not a readable stream... so how to convert into readable stream
+        // const options = textContent ? { method: 'POST', body: textContent.lines } :
+        // { method: 'POST' }
+
         try {
             const res = await fetch('/api/TTS', {
                 method: 'POST'
@@ -70,15 +81,25 @@ export function UploadForm() {
 
     return (
         <div>
-            {textContent !== undefined ? <ScriptView lines={textContent.lines} /> : <form onSubmit={onSubmit}>
-            <input
-                type="file"
-                name="file"
-                onChange={(e) => setFile(e.target.files?.[0])}
-            />
-            <input type="submit" value="Upload" />
+            {textContent !== undefined ? <><button onClick={onClick}>Start</button><ScriptView lines={textContent.lines} /></> : <form onSubmit={onSubmit}>
+                <input
+                    type="file"
+                    name="file"
+                    onChange={(e) => setFile(e.target.files?.[0])}
+                />
+                <input type="submit" value="Upload" />
             </form>}
             <button onClick={onClick}>test TTS</button>
         </div>
     )
 }
+
+
+
+
+// the flow was 
+
+// we upload
+// in the upload, we call the prompt chat gpt function
+// inside the chat gpt function, we call the TTS function
+// and inside there, we append the audio files 
