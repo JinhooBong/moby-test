@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // import the playht SDK
 import * as PlayHT from "playht";
 import fs from "fs";
+import fetch from "node-fetch";
 
 /* 
     Using PlayHT API to try incorporating TTS
@@ -15,8 +16,8 @@ export async function POST(request: NextRequest) {
         headers: {
             accept: "audio/mpeg",
             "content-type": "application/json",
-            AUTHORIZATION: process.env.PLAYHT_APIKEY,
-            "X-USER-ID": process.env.PLAYHT_USERID,
+            AUTHORIZATION: process.env.PLAYHT_APIKEY!,
+            "X-USER-ID": process.env.PLAYHT_USERID!,
         },
         body: JSON.stringify({
             voice_engine: 'PlayHT2.0-turbo',
@@ -27,6 +28,11 @@ export async function POST(request: NextRequest) {
             speed: 1,
         }),
     };
+
+    const response = await fetch(url, options);
+    const readableStream = response.body;
+
+    readableStream ? readableStream.pipe(fs.createWriteStream("./public/audioFiles/audio.mp3")) : console.error('not readable');
 
     return NextResponse.json({ "message": "success" });
       

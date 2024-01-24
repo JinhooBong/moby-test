@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "next": "14.0.4",
+    "node-fetch": "^3.3.2",
     "openai": "^4.23.0",
     "pdf2json": "^3.0.5",
     "pdfcrowd": "^5.17.0",
