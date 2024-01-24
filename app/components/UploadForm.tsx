@@ -18,7 +18,7 @@ export function UploadForm() {
                 method: 'POST'
             });
 
-            console.log('TTS response', res);
+            console.log('TTS response', await res.json());
 
         }  catch (e: any) {
             // Handle errors here
