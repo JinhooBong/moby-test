@@ -1,9 +1,9 @@
 
 export interface ScriptLineObject {
-    direction?: String,
-    directions?: String,
-    character?: String,
-    line?: String
+    direction?: string,
+    directions?: string,
+    character?: string,
+    line?: string
 }
 
 export const ScriptLine: React.FC<ScriptLineObject> = ({ direction, character, line }) => {

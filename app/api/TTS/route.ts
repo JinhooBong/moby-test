@@ -9,6 +9,9 @@ import fetch from "node-fetch";
 */
 export async function POST(request: NextRequest) {
 
+    let text = await new Response(request.body).text();
+    console.log('TTS body', text);
+
     const url = "https://api.play.ht/api/v2/tts/stream";
 
     const options = {
@@ -32,7 +35,7 @@ export async function POST(request: NextRequest) {
     const response = await fetch(url, options);
     const readableStream = response.body;
 
-    readableStream ? readableStream.pipe(fs.createWriteStream("./public/audioFiles/audio.mp3")) : console.error('not readable');
+    // readableStream ? readableStream.pipe(fs.createWriteStream("./public/audioFiles/audio.mp3")) : console.error('not readable');
 
     return NextResponse.json({ "message": "success" });
       

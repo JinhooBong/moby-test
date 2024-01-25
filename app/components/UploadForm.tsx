@@ -12,27 +12,41 @@ export function UploadForm() {
     const [file, setFile] = useState<File>();
     const [textContent, setTextContent] = useState<ScriptObject>();
 
-    const onClick = async () => {
+    // const onClick = async () => {
 
-        // console.log('what is textContent', textContent);
-        // textContent is the object returned from chatgpt
-        // we need to pass this array (textContent.lines) into our TTS
-        // and then iterate through this array 
-        // and then find a way to stream the audio files immediately. 
+    //     // console.log('what is textContent', textContent);
+    //     // textContent is the object returned from chatgpt
+    //     // we need to pass this array (textContent.lines) into our TTS
+    //     // and then iterate through this array 
+    //     // and then find a way to stream the audio files immediately. 
 
-        // textContent.lines is not a readable stream... so how to convert into readable stream
-        // const options = textContent ? { method: 'POST', body: textContent.lines } :
-        // { method: 'POST' }
+    //     // textContent.lines is not a readable stream... so how to convert into readable stream
+    //     // const options = textContent ? { method: 'POST', body: textContent.lines } :
+    //     // { method: 'POST' }
 
+    //     try {
+    //         const res = await fetch('/api/TTS', {
+    //             method: 'POST'
+    //         });
+
+    //         console.log('TTS response', await res.json());
+
+    //     }  catch (e: any) {
+    //         // Handle errors here
+    //         console.error(e);
+    //     }
+    // }
+
+    const convertTextToSpeech = async (input: string) => {
         try {
             const res = await fetch('/api/TTS', {
-                method: 'POST'
+                method: 'POST',
+                body: input
             });
 
-            console.log('TTS response', await res.json());
-
-        }  catch (e: any) {
-            // Handle errors here
+            console.log('TTS response: ', await res.json());
+        } catch (e: any) {
+            // handle errors here
             console.error(e);
         }
     }
@@ -57,7 +71,7 @@ export function UploadForm() {
             // dataToParse is a string object 
             // we can maybe split by line
             // but we'll need a way to identify between dialogue and scene directions
-            console.log('type', dataToParse.split("\n"));
+            // console.log('type', dataToParse.split("\n"));
 
             const parseRes = await fetch('/api/parser', {
                 method: 'POST',
@@ -70,6 +84,12 @@ export function UploadForm() {
             // this should be in format {"lines": [{direction} || {character}]}
             parsedData ? setTextContent(parsedData) : setTextContent({ lines: [] })
 
+            parsedData.lines.forEach((item: ScriptLineObject) => {
+                if ((!item.directions && !item.direction) && item.line) {
+                    convertTextToSpeech(item.line)
+                }
+            })
+
             // handle the error
             // if (!res.ok) throw new Error(await res.text());
                 
@@ -81,7 +101,7 @@ export function UploadForm() {
 
     return (
         <div>
-            {textContent !== undefined ? <><button onClick={onClick}>Start</button><ScriptView lines={textContent.lines} /></> : <form onSubmit={onSubmit}>
+            {textContent !== undefined ? <><ScriptView lines={textContent.lines} /></> : <form onSubmit={onSubmit}>
                 <input
                     type="file"
                     name="file"
@@ -89,7 +109,7 @@ export function UploadForm() {
                 />
                 <input type="submit" value="Upload" />
             </form>}
-            <button onClick={onClick}>test TTS</button>
+            {/* <button onClick={onClick}>test TTS</button> */}
         </div>
     )
 }
