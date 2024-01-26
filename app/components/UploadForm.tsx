@@ -11,6 +11,7 @@ export interface ScriptObject {
 export function UploadForm() {
     const [file, setFile] = useState<File>();
     const [textContent, setTextContent] = useState<ScriptObject>();
+    const [audioReady, setAudioReady] = useState(false);
 
     // const onClick = async () => {
 
@@ -44,7 +45,13 @@ export function UploadForm() {
                 body: input
             });
 
-            console.log('TTS response: ', await res.json());
+            const res_data = await res.json();
+            // console.log('res data?', res_data);
+            const arrayBuffer = Buffer.from(res_data.buffer);
+
+            return arrayBuffer;
+
+            // console.log('TTS response: ', await res.json());
         } catch (e: any) {
             // handle errors here
             console.error(e);
@@ -81,14 +88,19 @@ export function UploadForm() {
             const parsedResponse = await parseRes.json();
             const parsedData = JSON.parse(parsedResponse.content);
             console.log('parsed', parsedData);
-            // this should be in format {"lines": [{direction} || {character}]}
-            parsedData ? setTextContent(parsedData) : setTextContent({ lines: [] })
 
-            parsedData.lines.forEach((item: ScriptLineObject) => {
+            // this should be in format {"lines": [{direction} || {character}]}
+
+            parsedData.lines.forEach(async (item: ScriptLineObject) => {
                 if ((!item.directions && !item.direction) && item.line) {
-                    convertTextToSpeech(item.line)
-                }
+                    const audioFile = await convertTextToSpeech(item.line);
+                    item.audioBuffer = audioFile;
+                }   
+                setAudioReady(true);
+                setTextContent(parsedData);
             })
+
+            parsedData ? setTextContent(parsedData) : setTextContent({ lines: [] })
 
             // handle the error
             // if (!res.ok) throw new Error(await res.text());
@@ -101,7 +113,7 @@ export function UploadForm() {
 
     return (
         <div>
-            {textContent !== undefined ? <><ScriptView lines={textContent.lines} /></> : <form onSubmit={onSubmit}>
+            {textContent !== undefined && audioReady ? <><ScriptView lines={textContent.lines} /></> : <form onSubmit={onSubmit}>
                 <input
                     type="file"
                     name="file"

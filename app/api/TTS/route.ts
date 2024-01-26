@@ -1,15 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import the playht SDK
-import * as PlayHT from "playht";
 import fs from "fs";
+import * as PlayHT from "playht";
 import fetch from "node-fetch";
+
+// @ts-ignore
+async function streamToBuffer(readableStream) {
+    return new Promise((resolve, reject) => {
+        // @ts-ignore
+      const chunks = [];
+      // @ts-ignore
+      readableStream.on('data', data => {
+        if (typeof data === 'string') {
+          // Convert string to Buffer assuming UTF-8 encoding
+          chunks.push(Buffer.from(data, 'utf-8'));
+        } else if (data instanceof Buffer) {
+          chunks.push(data);
+        } else {
+          // Convert other data types to JSON and then to a Buffer
+          const jsonData = JSON.stringify(data);
+          chunks.push(Buffer.from(jsonData, 'utf-8'));
+        }
+      });
+      readableStream.on('end', () => {
+        // @ts-ignore
+        resolve(Buffer.concat(chunks));
+      });
+      readableStream.on('error', reject);
+    });
+  }
+
 
 /* 
     Using PlayHT API to try incorporating TTS
 */
 export async function POST(request: NextRequest) {
 
-    let text = await new Response(request.body).text();
+    // let rando = Math.floor(Math.random() * 1000) + 10;
+
+    let text = (await new Response(request.body).text()).replace(/ *\([^)]*\) */g, "");
     console.log('TTS body', text);
 
     const url = "https://api.play.ht/api/v2/tts/stream";
@@ -24,7 +53,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
             voice_engine: 'PlayHT2.0-turbo',
-            text: "Hey, this is Jennifer from Play. Please hold on a moment, let me just um pull up your details real quick.",
+            text: text,
             voice: "s3://voice-cloning-zero-shot/d9ff78ba-d016-47f6-b0ef-dd630f59414e/female-cs/manifest.json",
             output_format: "mp3",
             sample_rate: "24000",
@@ -35,71 +64,53 @@ export async function POST(request: NextRequest) {
     const response = await fetch(url, options);
     const readableStream = response.body;
 
-    // readableStream ? readableStream.pipe(fs.createWriteStream("./public/audioFiles/audio.mp3")) : console.error('not readable');
+    // console.log('what is readable stream', readableStream);
+    // console.log('type? ', typeof readableStream);
 
-    return NextResponse.json({ "message": "success" });
-      
-    // const response = await fetch(url, options);
-    // const readableStream = response.body;
+    // let buffer: Buffer;
 
-    // Pipe the readable stream to a writable stream, this can be a local file or any other writable stream
-    // readableStream.pipe(fs.createWriteStream("./audio.mp3"));
+    let buffer = await streamToBuffer(readableStream);
+    // console.log('what is buffer', buffer);
+        // .then(imageBuffer => {
+        //     // console.log('what? ', imageBuffer);
+        //     return NextResponse.json({ buffer: buffer });
+        // })
+        // .catch(error => {
+        //     console.error('Error:', error);
+        // });
+
+    // readableStream ? readableStream.pipe(fs.createWriteStream(`./public/audioFiles/audio_${rando}.mp3`)) : console.error('not readable');
+    // readableStream ? readableStream.pipe(fs.createWriteStream(`./public/audioFiles/audio.mp3`)) : console.error('not readable');
+    // readableStream ? readableStream.pipe() : console.error('not readable');
+
+    // can we convert the audio file into an audio buffer object now?
 
 
-    // const fs = require('fs');
-    
-    // Initialize PlayHT API with your credentials
-    // PlayHT.init({
-    //     apiKey: process.env.PLAYHT_APIKEY! ,
-    //     userId: process.env.PLAYHT_USERID!
-    // });
+    // anytime i try to use PlayHT.{function} it returns 'cannot find module tls';
+    // const generated = await PlayHT.generate('Computers can speak now!');
 
-    // const sentence = "hello, play support speaking? Please hold on a second, uh Let me just, um, pull up your details real quick.";
-  
-    // const streamAudio = async () => {
-    //     const response = await PlayHT.generate(sentence, {
-    //       voiceId:
-    //         "s3://voice-cloning-zero-shot/d9ff78ba-d016-47f6-b0ef-dd630f59414e/female-cs/manifest.json",
-    //       outputFormat: "mp3",
-    //       voiceEngine: "PlayHT2.0",
-    //       sampleRate: 44100,
-    //       speed: 1,
-    //     });
-      
-    //     console.log('TTS', response.audioUrl);
-      
-    //     // return response.audioUrl;
-    // }
+    // // Grab the generated file URL
+    // const { audioUrl } = generated;
+    // console.log('The url for the audio file is', audioUrl);
 
-    // // configure your stream
-    // const streamingOptions = {
-    //     // must use turbo for the best latency
-    //     voiceEngine: "PlayHT2.0-turbo",
-    //     // this voice id can be one of our prebuilt voices or your own voice clone id, refer to the`listVoices()` method for a list of supported voices.
-    //     voiceId:
-    //     "s3://voice-cloning-zero-shot/d9ff78ba-d016-47f6-b0ef-dd630f59414e/female-cs/manifest.json",
-    //     // you can pass any value between 8000 and 48000, 24000 is default
-    //     sampleRate: 24000,
-    //     // the generated audio encoding, supports 'raw' | 'mp3' | 'wav' | 'ogg' | 'flac' | 'mulaw'
-    //     outputFormat: 'mp3',
-    //     // playback rate of generated speech
-    //     speed: 1,
-    // };
+    // const audio = new Audio();
+    // audio.src = audioUrl;
+    // audio.load();
+    // audio.play();
 
-    // // start streaming!
-    // const text = "Hey, this is Jennifer from Play. Please hold on a moment, let me just um pull up your details real quick."
-
-    // //  ⨯ Error: Cannot find module 'tls'
-
-    // const stream = await PlayHT.stream(text, { voiceEngine: "PlayHT2.0-turbo", voiceId:
-    // "s3://voice-cloning-zero-shot/d9ff78ba-d016-47f6-b0ef-dd630f59414e/female-cs/manifest.json", sampleRate: 24000,  outputFormat: 'mp3',  speed: 1,});
-
-    // stream.on("data", (chunk) => {
-    // // Do whatever you want with the stream, you could save it to a file, stream it in realtime to the browser or app, or to a telephony system
-    //     fs.writeFileSync("./audio.mp3", chunk);
-    //     console.log('wrote audio file')
-    // });
-
+    // we return the buffer object 
+    return NextResponse.json({ buffer: buffer });
+    // return NextResponse.json({ message: "Did not return" });
 }
 
-//  Error: Cannot find module 'tls'
+
+/* 
+export type SharedSpeechOptions = {
+    voiceEngine: VoiceEngine;
+    voiceId?: string;
+    inputType?: InputType;
+    speed?: number;
+    quality?: OutputQuality;
+};
+
+*/

@@ -96,7 +96,9 @@ export const ScriptView: React.FC<ScriptObject> = ({lines}) => {
 
 
     const script = lines.map((line, id) => {
-        return <ScriptLine key={id} direction={line.direction ? line.direction : line.directions} character={line.character} line={line.line} />
+        console.log('line', line);
+
+        return <ScriptLine key={id} direction={line.direction ? line.direction : line.directions} character={line.character} line={line.line} audioBuffer={line.audioBuffer}/>
     })
     return <>{script}</>
 }
