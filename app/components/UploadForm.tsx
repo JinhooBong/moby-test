@@ -13,31 +13,6 @@ export function UploadForm() {
     const [textContent, setTextContent] = useState<ScriptObject>();
     const [audioReady, setAudioReady] = useState(false);
 
-    // const onClick = async () => {
-
-    //     // console.log('what is textContent', textContent);
-    //     // textContent is the object returned from chatgpt
-    //     // we need to pass this array (textContent.lines) into our TTS
-    //     // and then iterate through this array 
-    //     // and then find a way to stream the audio files immediately. 
-
-    //     // textContent.lines is not a readable stream... so how to convert into readable stream
-    //     // const options = textContent ? { method: 'POST', body: textContent.lines } :
-    //     // { method: 'POST' }
-
-    //     try {
-    //         const res = await fetch('/api/TTS', {
-    //             method: 'POST'
-    //         });
-
-    //         console.log('TTS response', await res.json());
-
-    //     }  catch (e: any) {
-    //         // Handle errors here
-    //         console.error(e);
-    //     }
-    // }
-
     const convertTextToSpeech = async (input: string) => {
         try {
             const res = await fetch('/api/TTS', {
@@ -50,12 +25,23 @@ export function UploadForm() {
             const arrayBuffer = Buffer.from(res_data.buffer);
 
             return arrayBuffer;
-
-            // console.log('TTS response: ', await res.json());
         } catch (e: any) {
             // handle errors here
             console.error(e);
         }
+    }
+
+    const fnTTS = (scriptWithoutAudio: ScriptObject) => {
+
+        scriptWithoutAudio.lines.forEach(async (item: ScriptLineObject) => {
+            if ((!item.directions && !item.direction) && item.line) {
+                const audioFile = await convertTextToSpeech(item.line);
+                item.audioBuffer = audioFile;
+            } 
+        })
+        setTextContent(scriptWithoutAudio);
+
+        setAudioReady(true);
     }
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -72,35 +58,35 @@ export function UploadForm() {
             })
 
             const textResponse = await res.json();
-            const dataToParse = textResponse.message;
-            console.log('console text', dataToParse);
+            const pdfAPIResponse = textResponse.message;
+            console.log('console text', pdfAPIResponse);
 
             // dataToParse is a string object 
             // we can maybe split by line
             // but we'll need a way to identify between dialogue and scene directions
             // console.log('type', dataToParse.split("\n"));
 
-            const parseRes = await fetch('/api/parser', {
+            const gptRes = await fetch('/api/parser', {
                 method: 'POST',
-                body: dataToParse
+                body: pdfAPIResponse
             });
 
-            const parsedResponse = await parseRes.json();
-            const parsedData = JSON.parse(parsedResponse.content);
-            console.log('parsed', parsedData);
+            const gptParsedResponse = await gptRes.json();
+            const parsedJSONObj = JSON.parse(gptParsedResponse.content);
+            console.log('parsed', parsedJSONObj);
 
             // this should be in format {"lines": [{direction} || {character}]}
 
-            parsedData.lines.forEach(async (item: ScriptLineObject) => {
-                if ((!item.directions && !item.direction) && item.line) {
-                    const audioFile = await convertTextToSpeech(item.line);
-                    item.audioBuffer = audioFile;
-                }   
-                setAudioReady(true);
-                setTextContent(parsedData);
-            })
+            // parsedJSONObj.lines.forEach(async (item: ScriptLineObject) => {
+            //     if ((!item.directions && !item.direction) && item.line) {
+            //         const audioFile = await convertTextToSpeech(item.line);
+            //         item.audioBuffer = audioFile;
+            //     }   
+            // })
 
-            parsedData ? setTextContent(parsedData) : setTextContent({ lines: [] })
+            fnTTS(parsedJSONObj);
+
+            // parsedData ? setTextContent(parsedData) : setTextContent({ lines: [] })
 
             // handle the error
             // if (!res.ok) throw new Error(await res.text());
@@ -111,9 +97,14 @@ export function UploadForm() {
         }
     }
 
+    const setScript = (script:ScriptObject) => {
+        setAudioReady(true);
+        setTextContent(script);
+    }
+
     return (
         <div>
-            {textContent !== undefined && audioReady ? <><ScriptView lines={textContent.lines} /></> : <form onSubmit={onSubmit}>
+            {audioReady && textContent? <><ScriptView lines={textContent.lines} /></> : <form onSubmit={onSubmit}>
                 <input
                     type="file"
                     name="file"
@@ -121,17 +112,19 @@ export function UploadForm() {
                 />
                 <input type="submit" value="Upload" />
             </form>}
-            {/* <button onClick={onClick}>test TTS</button> */}
         </div>
     )
 }
+/* 
+
+what is the flow of the document?
+
+the document gets uploaded
+the pdf gets parsed
+the parsedData gets passed to openAI to create JSON object
+each line of the JSON object gets passed into convert text to speech
+once the conversion is completed, then render the script view 
 
 
 
-
-// the flow was 
-
-// we upload
-// in the upload, we call the prompt chat gpt function
-// inside the chat gpt function, we call the TTS function
-// and inside there, we append the audio files 
+*/
