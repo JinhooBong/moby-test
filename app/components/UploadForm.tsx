@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react';
-import { ScriptView } from './ScriptView';
+import { Script } from './Script';
 import { ScriptLineObject } from './ScriptLine';
-
 export interface ScriptObject {
     lines: ScriptLineObject[]
 }
@@ -12,6 +11,78 @@ export function UploadForm() {
     const [file, setFile] = useState<File>();
     const [textContent, setTextContent] = useState<ScriptObject>();
     const [audioReady, setAudioReady] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const parsePDF = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        setLoading(true);
+
+        if (!file) return;
+
+        try {
+            const data = new FormData();
+            data.set('file', file);
+
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: data
+            })
+
+            const textResponse = await res.json();
+            // pdfAPI returns a string 
+            const pdfAPIResponse = textResponse.message;
+            console.log('console text', pdfAPIResponse);
+
+            /* FUTURE CASE  
+                be able to convert this string into JSON object by splitting between
+                dialogue and scene directions
+            */
+
+            parseIntoJSON(pdfAPIResponse);
+
+        } catch (e: any) {
+            console.error(e);
+        }
+    }
+
+    // Turn string from PDF parser into a JSON object
+    const parseIntoJSON = async (pdfParsed: string) => {
+
+        const gptRes = await fetch('/api/parser', {
+            method: 'POST',
+            body: pdfParsed
+        });
+
+        const gptParsedResponse = await gptRes.json();
+        const parsedJSONObj = JSON.parse(gptParsedResponse.content);
+        console.log('parsed', parsedJSONObj);
+
+        /* 
+            iterate through each line, and if the line is a character line,
+            pass it into TTS and append the audio file buffer into the JSON obj
+        */
+        parsedJSONObj.lines.forEach((item: ScriptLineObject) => {
+            console.log('before', item);
+            if ((!item.directions && !item.direction) && item.line) {
+                // const audioFile = convertTextToSpeech(item.line);
+                // item.audioBuffer = audioFile;
+
+                convertTextToSpeech(item.line)
+                .then((data) => {
+                    item.audioBuffer = data;
+                    console.log('after', item);
+                });
+            } 
+        });
+
+
+        setTimeout(() => {
+            setTextContent(parsedJSONObj);
+            setAudioReady(true)
+        }, 3000);
+    }
+
 
     const convertTextToSpeech = async (input: string) => {
         try {
@@ -31,88 +102,31 @@ export function UploadForm() {
         }
     }
 
-    const fnTTS = (scriptWithoutAudio: ScriptObject) => {
-
-        scriptWithoutAudio.lines.forEach(async (item: ScriptLineObject) => {
-            if ((!item.directions && !item.direction) && item.line) {
-                const audioFile = await convertTextToSpeech(item.line);
-                item.audioBuffer = audioFile;
-            } 
-        })
-        setTextContent(scriptWithoutAudio);
-
-        setAudioReady(true);
-    }
-
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!file) return;
-
-        try {
-            const data = new FormData();
-            data.set('file', file);
-
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: data
-            })
-
-            const textResponse = await res.json();
-            const pdfAPIResponse = textResponse.message;
-            console.log('console text', pdfAPIResponse);
-
-            // dataToParse is a string object 
-            // we can maybe split by line
-            // but we'll need a way to identify between dialogue and scene directions
-            // console.log('type', dataToParse.split("\n"));
-
-            const gptRes = await fetch('/api/parser', {
-                method: 'POST',
-                body: pdfAPIResponse
-            });
-
-            const gptParsedResponse = await gptRes.json();
-            const parsedJSONObj = JSON.parse(gptParsedResponse.content);
-            console.log('parsed', parsedJSONObj);
-
-            // this should be in format {"lines": [{direction} || {character}]}
-
-            // parsedJSONObj.lines.forEach(async (item: ScriptLineObject) => {
-            //     if ((!item.directions && !item.direction) && item.line) {
-            //         const audioFile = await convertTextToSpeech(item.line);
-            //         item.audioBuffer = audioFile;
-            //     }   
-            // })
-
-            fnTTS(parsedJSONObj);
-
-            // parsedData ? setTextContent(parsedData) : setTextContent({ lines: [] })
-
-            // handle the error
-            // if (!res.ok) throw new Error(await res.text());
-                
-        } catch (e: any) {
-            // Handle errors here
-            console.error(e);
-        }
-    }
-
-    const setScript = (script:ScriptObject) => {
-        setAudioReady(true);
-        setTextContent(script);
-    }
-
     return (
-        <div>
-            {audioReady && textContent? <><ScriptView lines={textContent.lines} /></> : <form onSubmit={onSubmit}>
-                <input
-                    type="file"
-                    name="file"
-                    onChange={(e) => setFile(e.target.files?.[0])}
-                />
-                <input type="submit" value="Upload" />
-            </form>}
-        </div>
+        // <>
+        //     {audioReady && textContent ? 
+        //         <ScriptView lines={textContent.lines} />
+        //         : <>
+        //             <form onSubmit={parsePDF}>
+        //                 <input type="file" name="file" onChange={(e) => 
+        //                     setFile(e.target.files?.[0])} />
+        //                 <input type="submit" value="Upload" />
+        //             </form>
+        //         </>
+        //     }
+        // </>}
+        <>
+            { console.log('textContent', textContent)}
+            {loading ? <p>Loading...</p> 
+                : <div style={{ display: textContent ? "none" : "block" }}>
+                    <form onSubmit={parsePDF}>
+                        <input type="file" name="file" onChange={(e) =>
+                            setFile(e.target.files?.[0])} />
+                        <input type="submit" value="Upload" />  
+                    </form>
+                </div>}
+            {audioReady ? <Script lines={textContent!.lines} /> : <></>}
+        </>
     )
 }
 /* 
@@ -120,11 +134,13 @@ export function UploadForm() {
 what is the flow of the document?
 
 the document gets uploaded
-the pdf gets parsed
-the parsedData gets passed to openAI to create JSON object
+it gets sent to PDF API to get parsed from PDF into string object 
+the string object returned from PDF API gets passed to openAI to create a JSON object
 each line of the JSON object gets passed into convert text to speech
 once the conversion is completed, then render the script view 
 
 
+// audio API is just taking awhile to load... so the scriptview needs to wait for the 
+// audio to load before the scriptview loads. 
 
 */
