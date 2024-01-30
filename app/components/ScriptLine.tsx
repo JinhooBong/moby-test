@@ -10,7 +10,7 @@ export interface ScriptLineObject {
 export const ScriptLine: React.FC<ScriptLineObject> = (
     { direction, character, line, audioBuffer }) => {
 
-        // console.log('audioBuffer', audioBuffer);
+        console.log('audioBuffer? ', audioBuffer);
 
         // play the audio buffer object
         const playAudioBuffer = async (audioBuffer: Buffer) => {
@@ -18,11 +18,10 @@ export const ScriptLine: React.FC<ScriptLineObject> = (
 
             console.log('audioBuffer', audioBuffer);
 
-
             /* 
                 ERROR: down in the decodeAudioData function
                 audioBuffer.buffer is not the right argument?
-                Uncaught (in promise) DOMException: Failed to execute 'decodeAudioData' on 'BaseAudioContext': Unable to decode audio data
+                
             */
 
             let audioContext = new AudioContext();

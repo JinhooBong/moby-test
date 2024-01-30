@@ -28,7 +28,7 @@ async function streamToBuffer(readableStream) {
       });
       readableStream.on('error', reject);
     });
-  }
+}
 
 
 /* 
@@ -100,17 +100,4 @@ export async function POST(request: NextRequest) {
 
     // we return the buffer object 
     return NextResponse.json({ buffer: buffer });
-    // return NextResponse.json({ message: "Did not return" });
 }
-
-
-/* 
-export type SharedSpeechOptions = {
-    voiceEngine: VoiceEngine;
-    voiceId?: string;
-    inputType?: InputType;
-    speed?: number;
-    quality?: OutputQuality;
-};
-
-*/
