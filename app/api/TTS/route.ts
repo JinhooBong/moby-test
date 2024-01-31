@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import the playht SDK
-import fs from "fs";
-import * as PlayHT from "playht";
+// import fs from "fs";
+// import * as PlayHT from "playht";
 import fetch from "node-fetch";
 
 // @ts-ignore
-async function streamToBuffer(readableStream) {
+async function streamToBuffer(readableStream): Buffer {
     return new Promise((resolve, reject) => {
         // @ts-ignore
       const chunks = [];
@@ -31,6 +31,12 @@ async function streamToBuffer(readableStream) {
 }
 
 
+// ****
+// Possible rework would be to take the whole script object in
+// and then loop through inside, and just append the lines in here
+// so then the client is waiting for this call / promise to finish before 
+// setting the script
+
 /* 
     Using PlayHT API to try incorporating TTS
 */
@@ -38,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // let rando = Math.floor(Math.random() * 1000) + 10;
 
-    let text = (await new Response(request.body).text()).replace(/ *\([^)]*\) */g, "");
+    let text = (await new Response(request.body).text());
     console.log('TTS body', text);
 
     const url = "https://api.play.ht/api/v2/tts/stream";
@@ -55,7 +61,7 @@ export async function POST(request: NextRequest) {
             voice_engine: 'PlayHT2.0-turbo',
             text: text,
             voice: "s3://voice-cloning-zero-shot/d9ff78ba-d016-47f6-b0ef-dd630f59414e/female-cs/manifest.json",
-            output_format: "mp3",
+            output_format: "MP3",
             sample_rate: "24000",
             speed: 1,
         }),
@@ -64,40 +70,38 @@ export async function POST(request: NextRequest) {
     const response = await fetch(url, options);
     const readableStream = response.body;
 
+    // for await (const chunk of response.body!) {
+    //     console.log('waht is chunk', chunk);
+    // }
+
+    // readableStream?.on('data', (data) => 
+    //     console.log('what is this', data ));
+
+    // let buffer;
+
+    // readableStream?.on('data', (data) => {
+    //     console.log('data printed', data);
+    //     return NextResponse.json({ buffer: data });
+    // });
+
     // console.log('what is readable stream', readableStream);
     // console.log('type? ', typeof readableStream);
 
     // let buffer: Buffer;
 
-    let buffer = await streamToBuffer(readableStream);
+    let buffer: Buffer = await streamToBuffer(readableStream);
+
     // console.log('what is buffer', buffer);
-        // .then(imageBuffer => {
-        //     // console.log('what? ', imageBuffer);
-        //     return NextResponse.json({ buffer: buffer });
-        // })
-        // .catch(error => {
-        //     console.error('Error:', error);
-        // });
-
-    // readableStream ? readableStream.pipe(fs.createWriteStream(`./public/audioFiles/audio_${rando}.mp3`)) : console.error('not readable');
-    // readableStream ? readableStream.pipe(fs.createWriteStream(`./public/audioFiles/audio.mp3`)) : console.error('not readable');
-    // readableStream ? readableStream.pipe() : console.error('not readable');
-
-    // can we convert the audio file into an audio buffer object now?
-
-
-    // anytime i try to use PlayHT.{function} it returns 'cannot find module tls';
-    // const generated = await PlayHT.generate('Computers can speak now!');
-
-    // // Grab the generated file URL
-    // const { audioUrl } = generated;
-    // console.log('The url for the audio file is', audioUrl);
-
-    // const audio = new Audio();
-    // audio.src = audioUrl;
-    // audio.load();
-    // audio.play();
+    // await streamToBuffer(readableStream)
+    // .then(imageBuffer => {
+    //     console.log('what is this one? ', imageBuffer);
+    //     // return NextResponse.json({ buffer: buffer });
+    // })
+    // .catch(error => {
+    //     console.error('Error:', error);
+    // });
 
     // we return the buffer object 
     return NextResponse.json({ buffer: buffer });
+    // return NextResponse.json({ message: "success" })
 }

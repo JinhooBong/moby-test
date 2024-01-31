@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ScriptLine, ScriptLineObject } from './ScriptLine';
 import { ScriptObject } from '../page';
-
+import { STT } from "./STT";
 interface ScriptProps {
     scriptToDisplay: ScriptLineObject[]
 }
@@ -43,7 +43,7 @@ export const Script: React.FC<ScriptProps> = ({ scriptToDisplay }) => {
     return (
         <div>
             {scriptToDisplay.map((line, id) => {
-                console.log('line', line);
+                // console.log('line', line);
                 return <ScriptLine 
                     key={id}
                     direction={line.direction ? line.direction : line.directions}
@@ -51,6 +51,7 @@ export const Script: React.FC<ScriptProps> = ({ scriptToDisplay }) => {
                     line={line.line}
                     audioBuffer={line.audioBuffer}/>
             })}
+            <STT/>
         </div>
     )
 

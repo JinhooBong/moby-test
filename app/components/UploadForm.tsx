@@ -208,12 +208,13 @@ export const UploadForm: React.FC<UploadFormProps> = ({ setLoading, setTheScript
             console.log('parsed', parsedJSONScript);
 
             if (parsedJSONScript.lines) {
-                parsedJSONScript.lines.map(async (lineObj: ScriptLineObject) => {
+                parsedJSONScript.lines.forEach(async (lineObj: ScriptLineObject) => {
                     // we want to skip any scene directions and make sure the character has a line
                     if ((!lineObj.direction && !lineObj.directions) && lineObj.line) {
-                        let buffer = await convertTextToSpeech(lineObj.line);
-                        lineObj.audioBuffer = await buffer;
-                        console.log('should have audio', lineObj);
+                        let lineToTranspose = lineObj.line.replace(/ *\([^)]*\) */g, "")
+                        let buffer = await convertTextToSpeech(lineToTranspose);
+                        lineObj.audioBuffer = buffer;
+                        // console.log('should have audio', lineObj);
                     }
                 })
             }
@@ -224,6 +225,10 @@ export const UploadForm: React.FC<UploadFormProps> = ({ setLoading, setTheScript
             setTimeout(() => {
                 setTheScript(parsedJSONScript)
             }, 2000);
+
+            // update the script with the parsed script with the audio buffer objects for
+            // each line now 
+            // await setTheScript(parsedJSONScript);
                
             return parsedJSONScript;
         } catch (e: any) {
@@ -236,12 +241,16 @@ export const UploadForm: React.FC<UploadFormProps> = ({ setLoading, setTheScript
         try {
             const res = await fetch('/api/TTS', {
                 method: 'POST',
-                body: line
+                // body: 
+                body: JSON.stringify(line),
+                headers: { "Content-Type": "audio/mp3"}
             });
 
             const res_data = await res.json();
             // console.log('res data?', res_data);
             const arrayBuffer = Buffer.from(res_data.buffer);
+
+            // console.log('after', arrayBuffer);
 
             return arrayBuffer;
 
