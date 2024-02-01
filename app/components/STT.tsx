@@ -13,29 +13,74 @@ import { ScriptLineObject } from './ScriptLine';
 
 interface STTProps {
     script: ScriptLineObject[],
-    index: number
+    index: number,
+    updateIndex: Function
 }
 
-export const STT: React.FC<STTProps> = ({ script, index}) => {
+export const STT: React.FC<STTProps> = ({ script, index, updateIndex }) => {
 
-    const trySTT = () => {
-        const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const fuzzball = require('fuzzball');
 
-        const recognition = new SpeechRecognition();
+    const [transcribed, setTranscribed] = React.useState('');
 
-        recognition.start();
+    // we check to see which line we're currently on
+    // if the line that we're currently on is a scene direction, we increment until the line is not a scene line
+    
 
-        recognition.onresult = (event: any) => {
-            const color = event.results[0][0].transcript;
-            console.log('color', color);
-          };
+    const startSTT = () => {
 
-          recognition.onspeechend = () => {
-            recognition.stop();
-          };
+        if (script[index].direction || script[index].directions) {
+            updateIndex(index+1);
+            startSTT();
+        } else {
+            const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            const recognition = new SpeechRecognition();
+
+            recognition.start();
+            recognition.continuous = true;
+
+            recognition.onresult = (event: any) => {
+                const speechInput = event.results[0][0].transcript;
+                console.log('speechInput', speechInput);
+                setTranscribed(speechInput);
+            };
+            recognition.onspeechend = () => {
+                const score = fuzzball.ratio(transcribed, script[index].line);
+                console.log('score', score);
+                if (score > 80) {
+                    updateIndex(index+1);
+                    startSTT();
+                }
+                recognition.stop();
+            }
+        }
+
+        
+        // const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        // const recognition = new SpeechRecognition();
+
+        // recognition.start();
+        // recognition.continuous = true;
+
+        // recognition.onresult = (event: any) => {
+        //     const speechInput = event.results[0][0].transcript;
+
+            
+        //     fuzzball.ratio(speechInput, script[index].line);
+        //     // if the score that the ratio gives is greater than 80, then move onto the next line
+        //     console.log('color', speechInput);
+        //   };
+
+        //   recognition.onspeechend = () => {
+        //     recognition.stop();
+        //   };
     }
+
+
     
     return (
-        <><button style={{ border: "1px solid white"}} onClick={() => trySTT()}>Try STT</button></>
+        <><button style={{ border: "1px solid white"}} onClick={() => startSTT()}>Try STT</button></>
     )
 };
