@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import the playht SDK
-// import fs from "fs";
-// import * as PlayHT from "playht";
+import fs from "fs";
+import * as PlayHT from "playht";
 import fetch from "node-fetch";
 
 // @ts-ignore
@@ -54,14 +54,14 @@ export async function POST(request: NextRequest) {
         headers: {
             accept: "audio/mpeg",
             "content-type": "application/json",
-            AUTHORIZATION: process.env.PLAYHT_APIKEY!,
+            AUTHORIZATION: process.env.PLAYHT_KEY!,
             "X-USER-ID": process.env.PLAYHT_USERID!,
         },
         body: JSON.stringify({
             voice_engine: 'PlayHT2.0-turbo',
             text: text,
             voice: "s3://voice-cloning-zero-shot/d9ff78ba-d016-47f6-b0ef-dd630f59414e/female-cs/manifest.json",
-            output_format: "MP3",
+            output_format: "mp3",
             sample_rate: "24000",
             speed: 1,
         }),
@@ -69,6 +69,10 @@ export async function POST(request: NextRequest) {
 
     const response = await fetch(url, options);
     const readableStream = response.body;
+
+    // readableStream ? readableStream.pipe(fs.createWriteStream("./audio.mp3")) : null;
+    
+
 
     // for await (const chunk of response.body!) {
     //     console.log('waht is chunk', chunk);

@@ -10,6 +10,12 @@ export interface ScriptProps {
 
 export const Script: React.FC<ScriptProps> = ({ scriptToDisplay }) => {
 
+    const [lineIndex, setLineIndex] = useState(0);
+
+    const handleIndexUpdate = (newIndex: number) => {
+        setLineIndex(newIndex)
+    }
+
     // given the script object
     // we want to traverse through the object, and then for each
     // item, we pass the values into the ScriptLine object
@@ -52,7 +58,7 @@ export const Script: React.FC<ScriptProps> = ({ scriptToDisplay }) => {
                     audioBuffer={line.audioBuffer}/>
             })}
 
-            <STT script={scriptToDisplay} index={0}/>
+            <STT script={scriptToDisplay} index={lineIndex} updateIndex={handleIndexUpdate} />
         </div>
     )
 
