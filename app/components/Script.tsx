@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ScriptLine, ScriptLineObject } from './ScriptLine';
 import { ScriptObject } from '../page';
 import { STT } from "./STT";
-interface ScriptProps {
+export interface ScriptProps {
     scriptToDisplay: ScriptLineObject[]
 }
 
@@ -51,7 +51,8 @@ export const Script: React.FC<ScriptProps> = ({ scriptToDisplay }) => {
                     line={line.line}
                     audioBuffer={line.audioBuffer}/>
             })}
-            <STT/>
+
+            <STT script={scriptToDisplay} index={0}/>
         </div>
     )
 

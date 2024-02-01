@@ -11,6 +11,7 @@
   "dependencies": {
     "@deepgram/sdk": "^3.1.6",
     "cross-fetch": "^4.0.0",
+    "fuzzball": "^2.1.2",
     "next": "14.0.4",
     "node-fetch": "^3.3.2",
     "openai": "^4.23.0",
@@ -19,12 +20,14 @@
     "playht": "^0.9.6",
     "promise": "^8.3.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-speech-recognition": "^3.9.5",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
