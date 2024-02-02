@@ -82,9 +82,10 @@ export const UploadForm: React.FC<UploadFormProps> = ({ setLoading, setTheScript
 
             // this timeout sort of stalls the process giving the convertTextToSpeech time to add all the
             // necessary audio buffers... but its not ideal
+            // 4 seconds worked but not sure about any lower
             setTimeout(() => {
                 showScript(true);
-            }, 4000);
+            }, 2000);
 
             return;
         } catch (e: any) {
