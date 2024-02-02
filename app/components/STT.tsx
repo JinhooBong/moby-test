@@ -27,11 +27,11 @@ export const STT: React.FC<STTProps> = ({ script, index, updateIndex }) => {
     // if the line that we're currently on is a scene direction, we increment until the line is not a scene line
     
 
-    const startSTT = () => {
+    const start = () => {
 
         if (script[index].direction || script[index].directions) {
             updateIndex(index+1);
-            startSTT();
+            start();
         } else {
             const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -50,7 +50,7 @@ export const STT: React.FC<STTProps> = ({ script, index, updateIndex }) => {
                 console.log('score', score);
                 if (score > 80) {
                     updateIndex(index+1);
-                    startSTT();
+                    start();
                 }
                 recognition.stop();
             }
@@ -81,6 +81,6 @@ export const STT: React.FC<STTProps> = ({ script, index, updateIndex }) => {
 
     
     return (
-        <><button style={{ border: "1px solid white"}} onClick={() => startSTT()}>Try STT</button></>
+        <><button style={{ border: "1px solid white"}} onClick={() => start()}>Try STT</button></>
     )
 };

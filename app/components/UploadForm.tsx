@@ -15,19 +15,33 @@ import React, { useState, FormEvent } from 'react';
 import { ScriptLineObject } from './ScriptLine';
 
 interface UploadFormProps {
-    setLoading: Function,
     setTheScript: Function,
-    showScript: Function
+    showScript: Function,
+    hideUpload: Function,
+    isPDFLoading: Function,
+    isGPTLoading: Function,
+    isTTSLoading: Function,
+    isLoading: Function
 }
 
-export const UploadForm: React.FC<UploadFormProps> = ({ setLoading, setTheScript, showScript }) => {
+export const UploadForm: React.FC<UploadFormProps> = ({ 
+    setTheScript, 
+    showScript, 
+    hideUpload, 
+    isPDFLoading, 
+    isGPTLoading,
+    isTTSLoading,
+    isLoading
+}) => {
 
     const [file, setFile] = useState<File>();
 
     const parseFileIntoPDF = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        setLoading(true);
+        
+        isLoading(true);
+        hideUpload(true);
+        isPDFLoading(true);
 
         // if file is not set, return the function bc we can't do anything
         if (!file) return;
@@ -49,6 +63,8 @@ export const UploadForm: React.FC<UploadFormProps> = ({ setLoading, setTheScript
 
             parseIntoJSON(pdfAPIResponse);
 
+            isPDFLoading(false);
+
             return;
         } catch (e: any) {
             console.error('pdf parse error: ', e);
@@ -56,7 +72,10 @@ export const UploadForm: React.FC<UploadFormProps> = ({ setLoading, setTheScript
     }
 
     const parseIntoJSON = async (pdfToParse: string) => {
-       
+
+        isGPTLoading(true);
+        isTTSLoading(true);
+
         try {
             const gptRes = await fetch('/api/parser', {
                 method: 'POST',
@@ -85,7 +104,11 @@ export const UploadForm: React.FC<UploadFormProps> = ({ setLoading, setTheScript
             // 4 seconds worked but not sure about any lower
             setTimeout(() => {
                 showScript(true);
-            }, 2000);
+                isTTSLoading(false);
+                isLoading(false);
+            }, 3000);
+            
+            isGPTLoading(false);
 
             return;
         } catch (e: any) {

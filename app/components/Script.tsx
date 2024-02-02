@@ -5,10 +5,11 @@ import { ScriptLine, ScriptLineObject } from './ScriptLine';
 import { ScriptObject } from '../page';
 import { STT } from "./STT";
 export interface ScriptProps {
-    scriptToDisplay: ScriptLineObject[]
+    scriptToDisplay: ScriptLineObject[],
+    selectedCharacter: string
 }
 
-export const Script: React.FC<ScriptProps> = ({ scriptToDisplay }) => {
+export const Script: React.FC<ScriptProps> = ({ scriptToDisplay, selectedCharacter }) => {
 
     const [lineIndex, setLineIndex] = useState(0);
 
