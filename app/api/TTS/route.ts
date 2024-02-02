@@ -70,42 +70,8 @@ export async function POST(request: NextRequest) {
     const response = await fetch(url, options);
     const readableStream = response.body;
 
-    // readableStream ? readableStream.pipe(fs.createWriteStream("./audio.mp3")) : null;
-    
-
-
-    // for await (const chunk of response.body!) {
-    //     console.log('waht is chunk', chunk);
-    // }
-
-    // readableStream?.on('data', (data) => 
-    //     console.log('what is this', data ));
-
-    // let buffer;
-
-    // readableStream?.on('data', (data) => {
-    //     console.log('data printed', data);
-    //     return NextResponse.json({ buffer: data });
-    // });
-
-    // console.log('what is readable stream', readableStream);
-    // console.log('type? ', typeof readableStream);
-
-    // let buffer: Buffer;
-
     let buffer: Buffer = await streamToBuffer(readableStream);
-
-    // console.log('what is buffer', buffer);
-    // await streamToBuffer(readableStream)
-    // .then(imageBuffer => {
-    //     console.log('what is this one? ', imageBuffer);
-    //     // return NextResponse.json({ buffer: buffer });
-    // })
-    // .catch(error => {
-    //     console.error('Error:', error);
-    // });
 
     // we return the buffer object 
     return NextResponse.json({ buffer: buffer });
-    // return NextResponse.json({ message: "success" })
 }
