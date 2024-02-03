@@ -48,7 +48,7 @@ export const Script: React.FC<ScriptProps> = ({ scriptToDisplay, selectedCharact
     //     </div>
     // )
     return (
-        <div>
+        <div style={{ height: "85vh", overflowY: "auto"}}>
             {scriptToDisplay.map((line, id) => {
                 // console.log('line', line);
                 return <ScriptLine 
@@ -58,8 +58,6 @@ export const Script: React.FC<ScriptProps> = ({ scriptToDisplay, selectedCharact
                     line={line.line}
                     audioBuffer={line.audioBuffer}/>
             })}
-
-            <STT script={scriptToDisplay} index={lineIndex} updateIndex={handleIndexUpdate} />
         </div>
     )
 

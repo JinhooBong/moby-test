@@ -7,6 +7,7 @@ import { Script } from './components/Script';
 import { ScriptLineObject } from './components/ScriptLine';
 import { LoadingBar } from './components/LoadingBar';
 import { ChooseCharacter } from './components/ChooseCharacter';
+import { STT } from "./components/STT";
 
 export interface ScriptObject {
     lines: ScriptLineObject[]
@@ -17,6 +18,7 @@ export default function Home() {
     const [isLoading, setIsLoading] = React.useState(false);
     const [script, setScript] = React.useState<ScriptObject>();
     const [showScript, setShowScript] = React.useState<boolean | undefined>(false);
+    const [indexOfCurrLine, setIndexOfCurrLine] = React.useState<number>(0);
 
     const [listOfCharacters, setListOfCharacters] = React.useState<string[]>([]);
     const [selectedCharacter, setSelectedCharacter] = React.useState<string | undefined>("");
@@ -38,19 +40,44 @@ export default function Home() {
     const createAvailableCharacters = (script: ScriptObject | undefined) => {
         let identifiedCharacters: Set<string> = new Set();
 
+        // we don't want duplicates in the case where the character name is part of 
+        // another character's name 
         script ? script.lines.forEach((item) => {
             if ((!item.direction && !item.directions) && item.character) {
-                if(!identifiedCharacters.has(item.character)) {
+                // make sure it's a new name, and one that is not a substring of another (e.g. Girl & Girl (Rachel))
+                if (!checkIfNameExistsWithin(item.character, identifiedCharacters)) {
                     identifiedCharacters.add(item.character);
                 }
             }
         }) : null;
+
+        
 
         // do better error handling here ^
 
         let characterArray = Array.from(identifiedCharacters);
 
         setListOfCharacters(characterArray);
+    }
+
+    // helper function to check if a name is part of an already existing identified name 
+    // if the new name is longer than the already existing name use the longer one
+    const checkIfNameExistsWithin = (newName: string, listOfNames: Set<string>) => {
+
+        if (!listOfNames) return false;
+
+        for (const existingName of listOfNames) {
+            if (existingName.includes(newName) || newName.includes(existingName)) {
+                // we want the longer one
+                if ( newName.length > existingName.length ) {
+                    listOfNames.delete(existingName);
+                    listOfNames.add(newName);
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     const handleLoading = (loadingState: boolean) => {
@@ -78,9 +105,12 @@ export default function Home() {
     }
 
     const handleCharacterChange = (character: string) => {
-        console.log('character chosen: ', selectedCharacter);
         setSelectedCharacter(character);
     }    
+
+    const handleIndexUpdate = (index: number) => {
+        setIndexOfCurrLine(index);
+    }
 
     return (
         <>  
@@ -103,15 +133,21 @@ export default function Home() {
                     ttsLoading={ttsLoading}
                 /> 
                 : <></>}
-            {!isLoading && script ? 
+            {!isLoading && script && !selectedCharacter ? 
                 <ChooseCharacter 
                     characters={listOfCharacters} 
                     setCharacter={handleCharacterChange} /> 
                 : <></>}
-            {script && selectedCharacter? 
-                <Script 
-                    scriptToDisplay={script.lines} 
-                    selectedCharacter={selectedCharacter} /> 
+            {script && selectedCharacter ?
+                <> 
+                    <Script 
+                        scriptToDisplay={script.lines} 
+                        selectedCharacter={selectedCharacter} /> 
+                    <STT script={script.lines} 
+                        userSelectedCharacter={selectedCharacter} 
+                        index={indexOfCurrLine} 
+                        updateIndex={handleIndexUpdate} />
+                </>
                 : <></>}
         </>
     )

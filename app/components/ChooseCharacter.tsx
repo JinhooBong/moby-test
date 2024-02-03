@@ -21,7 +21,16 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({ characters, se
 
     const [selectedCharacter, setSelectedCharacter] = React.useState('');
 
+
+    React.useEffect(() => {
+        // once characters is populated, we want to set the default value of selectedCharcter to
+        // be the first one 
+        setSelectedCharacter(characters[0]);
+    }, [characters])
+
     const handleChange = (e: any) => {
+        console.log('e', e.target.value);
+        console.log('selected', selectedCharacter);
         setSelectedCharacter(e.target.value as string);
     };
 
