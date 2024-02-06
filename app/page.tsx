@@ -51,8 +51,6 @@ export default function Home() {
             }
         }) : null;
 
-        
-
         // do better error handling here ^
 
         let characterArray = Array.from(identifiedCharacters);
@@ -141,12 +139,10 @@ export default function Home() {
             {script && selectedCharacter ?
                 <> 
                     <Script 
-                        scriptToDisplay={script.lines} 
-                        selectedCharacter={selectedCharacter} /> 
+                        scriptToDisplay={script.lines} /> 
                     <STT script={script.lines} 
                         userSelectedCharacter={selectedCharacter} 
-                        index={indexOfCurrLine} 
-                        updateIndex={handleIndexUpdate} />
+                        index={indexOfCurrLine} />
                 </>
                 : <></>}
         </>

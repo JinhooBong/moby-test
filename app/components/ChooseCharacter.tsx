@@ -4,8 +4,7 @@
     A component that will render before the script so that the user can identify
     which character they will be reading for. 
 
-    Input: ideally be just an array of the character names
-    // we can work around this by sending in the whole script, and generating the list of characters here
+    Input: an array of strings 
 
     Output: updating the state in the parent value with the chosen character
 
@@ -23,8 +22,7 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({ characters, se
 
 
     React.useEffect(() => {
-        // once characters is populated, we want to set the default value of selectedCharcter to
-        // be the first one 
+        // once characters is populated, we want to set the default value of selectedCharcter to be the first one 
         setSelectedCharacter(characters[0]);
     }, [characters])
 

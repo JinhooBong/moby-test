@@ -42,7 +42,7 @@ async function streamToBuffer(readableStream): Buffer {
 */
 export async function POST(request: NextRequest) {
 
-    // let rando = Math.floor(Math.random() * 1000) + 10;
+    let rando = Math.floor(Math.random() * 1000) + 10;
 
     let text = (await new Response(request.body).text());
     console.log('TTS body', text);
@@ -70,7 +70,10 @@ export async function POST(request: NextRequest) {
     const response = await fetch(url, options);
     const readableStream = response.body;
 
+    // readableStream ? readableStream.pipe(fs.createWriteStream(`./audio_${rando}.mp3`)) : null;
+
     let buffer: Buffer = await streamToBuffer(readableStream);
+    
 
     // we return the buffer object 
     return NextResponse.json({ buffer: buffer });
