@@ -9,7 +9,9 @@ import { ScriptLineObject } from './ScriptLine';
 interface STTProps {
     script: ScriptLineObject[],
     userSelectedCharacter: string,
-    index: number
+    index: number,
+    updateIndex: Function,
+    handleStartClick: Function
 }
 
 /* --------------------------------------------------------------------------- 
@@ -23,18 +25,26 @@ interface STTProps {
 // we want to check to make sure that the input from the speech recognition matches the script at index..
 // if it matches, and the next line is still the reader, then we want to still check otherwise we just increment until it is the reader's turn again.
 
-export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index }) => {
+export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, updateIndex, handleStartClick }) => {
 
     const fuzzball = require('fuzzball');
     const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    let currIndex = index;
+    // let currIndex = index;
+    let currIndex = 0;
 
     console.log('script.length', script.length);
+
+    const startFunction = () => {
+        handleStartClick(true);
+
+        startDialogue();
+    }
 
     const startDialogue = () => {
 
         console.log('current index', currIndex);
+        console.log('index', index);
         console.log('user selected character', userSelectedCharacter);
 
         const newRecognition = new SpeechRecognition();
@@ -54,6 +64,7 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index }
         if (currentLine.direction || currentLine.directions) {
             console.log('hit scene direction so skip');
             currIndex++;
+            updateIndex(currIndex);
             startDialogue();
             return;
         } else if (currentLine.character?.includes(userSelectedCharacter)
@@ -91,6 +102,7 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index }
         console.log('score', score);
         if (score > 70) {
             currIndex++;
+            updateIndex(currIndex);
             startDialogue();
         } else {
             startDialogue();
@@ -126,6 +138,7 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index }
                         console.log('moby turn over');
 
                         currIndex++;
+                        updateIndex(currIndex);
                         startDialogue();
                     });
                 })
@@ -142,7 +155,7 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index }
         <>
             <button 
                 style={{ border: "1px solid white"}} 
-                onClick={() => startDialogue()}>
+                onClick={() => startFunction()}>
                 Start
             </button>
         </>

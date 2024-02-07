@@ -29,6 +29,7 @@ export default function Home() {
     const [ttsLoading, setTTSLoading] = React.useState<boolean | undefined>(false);
 
     const [hideUpload, setHideUpload] = React.useState<boolean>(false);
+    const [startClicked, setStartClicked] = React.useState<boolean>(false);
 
 
     React.useEffect(() => {
@@ -110,6 +111,10 @@ export default function Home() {
         setIndexOfCurrLine(index);
     }
 
+    const handleClickStart = (click: boolean) => {
+        setStartClicked(click);
+    }
+
     return (
         <>  
             {console.log('script', script)}
@@ -139,10 +144,16 @@ export default function Home() {
             {script && selectedCharacter ?
                 <> 
                     <Script 
-                        scriptToDisplay={script.lines} /> 
+                        scriptToDisplay={script.lines} 
+                        currentLineIndex={indexOfCurrLine} 
+                        startClicked={startClicked}
+                        /> 
                     <STT script={script.lines} 
                         userSelectedCharacter={selectedCharacter} 
-                        index={indexOfCurrLine} />
+                        index={indexOfCurrLine} 
+                        updateIndex={handleIndexUpdate}
+                        handleStartClick={handleClickStart}
+                        />
                 </>
                 : <></>}
         </>
