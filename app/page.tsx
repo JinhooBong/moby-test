@@ -15,19 +15,20 @@ export interface ScriptObject {
 
 export default function Home() {
     
-    const [isLoading, setIsLoading] = React.useState(false);
+    // user dependent state variables
     const [script, setScript] = React.useState<ScriptObject>();
     const [showScript, setShowScript] = React.useState<boolean | undefined>(false);
     const [indexOfCurrLine, setIndexOfCurrLine] = React.useState<number>(0);
-
     const [listOfCharacters, setListOfCharacters] = React.useState<string[]>([]);
     const [selectedCharacter, setSelectedCharacter] = React.useState<string | undefined>("");
 
     // states to keep track of which apis are loading
+    const [isLoading, setIsLoading] = React.useState(false);
     const [parsePDFLoading, setParsePDFLoading] = React.useState<boolean | undefined>(false);
     const [gptLoading, setGPTLoading] = React.useState<boolean | undefined>(false);
     const [ttsLoading, setTTSLoading] = React.useState<boolean | undefined>(false);
 
+    // action state variables
     const [hideUpload, setHideUpload] = React.useState<boolean>(false);
     const [startClicked, setStartClicked] = React.useState<boolean>(false);
 
@@ -52,8 +53,6 @@ export default function Home() {
             }
         }) : null;
 
-        // do better error handling here ^
-
         let characterArray = Array.from(identifiedCharacters);
 
         setListOfCharacters(characterArray);
@@ -75,9 +74,10 @@ export default function Home() {
                 return true;
             }
         }
-
         return false;
     }
+
+
 
     const handleLoading = (loadingState: boolean) => {
         setIsLoading(loadingState);
@@ -117,7 +117,7 @@ export default function Home() {
 
     return (
         <>  
-            {console.log('script', script)}
+            {/* {console.log('script', script)} */}
             <div style={{ display: hideUpload ? "none" : "block" }}>
                 <UploadForm
                     setTheScript={setScript} 
