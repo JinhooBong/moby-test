@@ -1,8 +1,5 @@
 'use client';
 
-// const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
-// const fetch = require("cross-fetch");
-
 import React from 'react';
 import { ScriptLineObject } from './ScriptLine';
 
@@ -21,27 +18,39 @@ interface STTProps {
 
  --------------------------------------------------------------------------- */
 
-// input: the script, and the starting index of the script 
-// we want to check to make sure that the input from the speech recognition matches the script at index..
-// if it matches, and the next line is still the reader, then we want to still check otherwise we just increment until it is the reader's turn again.
-
-export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, updateIndex, handleStartClick }) => {
+export const STT: React.FC<STTProps> = ({ 
+    script, 
+    userSelectedCharacter, 
+    index, 
+    updateIndex, 
+    handleStartClick 
+}) => {
 
     const fuzzball = require('fuzzball');
     const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    // let currIndex = index;
+    let audioContext = new AudioContext();
+    let outputSource;
+
     let currIndex = 0;
+
+    const [userHasStarted, setUserHasStarted] = React.useState(false);
+    const [userClickedReset, setUserClickedReset] = React.useState(false);
 
     console.log('script.length', script.length);
 
     const startFunction = () => {
         handleStartClick(true);
+        setUserHasStarted(true);
+        setUserClickedReset(false);
 
         startDialogue();
     }
 
     const startDialogue = () => {
+        console.log('reset clicked', userClickedReset);
+
+        if (userClickedReset) return;
 
         console.log('current index: ', currIndex);
         console.log('index: ', index);
@@ -91,7 +100,7 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
         } else {
             console.log('entered moby block');
             // console.log('current audio', currentLine.audioBuffer);
-            playAudioBuffer(currentLine.audioBuffer);
+            playAudioSound(currentLine.audioBuffer);
             return;
         }
     }
@@ -112,48 +121,96 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
         return;
     }
 
+    const playAudioBuffer = (audioBuffer: AudioBuffer) => {
+        outputSource = audioContext.createBufferSource();
+        outputSource.connect(audioContext.destination);
+        outputSource.buffer = audioBuffer;
+        outputSource.start();
+
+        outputSource.addEventListener('ended', () => {
+            console.log('moby turn over');
+
+            currIndex++;
+            updateIndex(currIndex);
+            startDialogue();
+        }); 
+
+    }
+
     // helper function to stream the audioBuffer object 
-    const playAudioBuffer = async (audioBuffer: Buffer | undefined) => {
+    const playAudioSound = async (audioBuffer: Buffer | undefined) => {
 
         console.log('entered audio player');
 
-        let audioContext = new AudioContext();
-        let outputSource;
     
         if (!audioBuffer) return null;
     
+        // try {
+        //     if (await audioBuffer.byteLength > 0) {
+        //         // console.log("audioBuffer", audioBuffer);
+        //         // console.log("audioBuffer", audioBuffer.buffer);
+        //         audioContext.decodeAudioData(await audioBuffer.buffer, (buffer) => {
+        //             audioContext.resume();
+        //             outputSource= audioContext.createBufferSource();
+        //             outputSource.connect(audioContext.destination);
+        //             outputSource.buffer = buffer;
+        //             outputSource.start(0);
+
+        //             outputSource.addEventListener('ended', () => {
+        //                 console.log('moby turn over');
+
+        //                 currIndex++;
+        //                 updateIndex(currIndex);
+        //                 startDialogue();
+        //             });
+        //         })
+        //     } else {
+        //         console.error('did not find any arguments in audio player');
+        //     }
+        // } catch (e: any) {
+        //     console.error(e);
+        // }
+
         try {
             if (await audioBuffer.byteLength > 0) {
-                // console.log("audioBuffer", audioBuffer);
-                // console.log("audioBuffer", audioBuffer.buffer);
-                audioContext.decodeAudioData(await audioBuffer.buffer, (buffer) => {
-                    audioContext.resume();
-                    outputSource= audioContext.createBufferSource();
-                    outputSource.connect(audioContext.destination);
-                    outputSource.buffer = buffer;
-                    outputSource.start(0);
-
-                    outputSource.addEventListener('ended', () => {
-                        console.log('moby turn over');
-
-                        currIndex++;
-                        updateIndex(currIndex);
-                        startDialogue();
-                    });
-                })
-            } else {
-                console.error('did not find any arguments in audio player');
+                audioContext.decodeAudioData(await audioBuffer.buffer, playAudioBuffer);
             }
         } catch (e: any) {
             console.error(e);
         }
+
         return;
     }
+
+    /* 
+        When we reset, we want to set the current index to 0, and the parent variable (index) to 0
+        essentially to reset the start of the script
+        we have a variable to check if the user has clicked reset
+        if the user has clicked reset, we want to stop the call stack (initiated when the user clicked start)
+        and then start from the beginning 
+    */ 
+
+    const handleResetClick = (clicked: boolean) => {
+        setUserClickedReset(clicked);
+    }
+
+    // const reset = () => {
+
+    //     currIndex = 0;
+    //     updateIndex(0);
+    //     // setUserClickedReset(true);
+    //     handleResetClick(true);
+
+    //     // startFunction();
+    //     startDialogue();
+    // }
     
     return (
         <>
             <button 
                 style={{ border: '1px solid white'}} 
+                // onClick={() => userHasStarted ? reset() : startFunction()}>
+                // {userHasStarted ? "Restart" : "Start"}
                 onClick={() => startFunction()}>
                 Start
             </button>
