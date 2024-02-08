@@ -51,11 +51,6 @@ const parsePDF = async (file: File) => {
         // save the buffer as a file
         await writeFile(temp, fileBuffer);
     
-        // parse the pdf using pdf2json. 
-    
-        // the reason I am bypassing typecheck is because the default type definition for pdf2json is the npm install
-        // do not allow for any constructor arguments
-        // you can either modify the type definitions or bypass the type checks
         // @ts-ignore
         const pdfParser = new (PDFParser as any)(null, 1);
     
@@ -64,7 +59,6 @@ const parsePDF = async (file: File) => {
         });
     
         pdfParser.on('pdfParser_dataReady', () => {
-            // console.log('this', (pdfParser as any).getRawTextContent());
             parsedText = (pdfParser as any).getRawTextContent();
         });
     

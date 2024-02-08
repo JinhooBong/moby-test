@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React from 'react';
 // import { UploadForm, ScriptObject } from './components/UploadForm';
@@ -7,7 +7,7 @@ import { Script } from './components/Script';
 import { ScriptLineObject } from './components/ScriptLine';
 import { LoadingBar } from './components/LoadingBar';
 import { ChooseCharacter } from './components/ChooseCharacter';
-import { STT } from "./components/STT";
+import { STT } from './components/STT';
 
 export interface ScriptObject {
     lines: ScriptLineObject[]
@@ -118,7 +118,7 @@ export default function Home() {
     return (
         <>  
             {/* {console.log('script', script)} */}
-            <div style={{ display: hideUpload ? "none" : "block" }}>
+            <div style={{ display: hideUpload ? 'none' : 'block' }}>
                 <UploadForm
                     setTheScript={setScript} 
                     showScript={handleDisplayScript} 

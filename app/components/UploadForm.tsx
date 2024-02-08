@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, FormEvent } from "react";
-import { ScriptLineObject } from "./ScriptLine";
+import React, { useState, FormEvent } from 'react';
+import { ScriptLineObject } from './ScriptLine';
 
 interface UploadFormProps {
     setTheScript: Function,
@@ -38,17 +38,17 @@ export const UploadForm: React.FC<UploadFormProps> = ({
         // call the convert to pdf api call
         try {
             const data = new FormData();
-            data.set("file", file);
+            data.set('file', file);
 
-            const res = await fetch("/api/upload", {
-                method: "POST",
+            const res = await fetch('/api/upload', {
+                method: 'POST',
                 body: data
             });
 
             const textResponse = await res.json();
             // pdfAPI returns a string 
             const pdfAPIResponse = textResponse.message;
-            console.log("pdf response: ", pdfAPIResponse);
+            console.log('pdf response: ', pdfAPIResponse);
 
             parseIntoJSON(pdfAPIResponse);
 
@@ -56,7 +56,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
             return;
         } catch (e: any) {
-            console.error("pdf parse error: ", e);
+            console.error('pdf parse error: ', e);
         }
     }
 
@@ -66,14 +66,14 @@ export const UploadForm: React.FC<UploadFormProps> = ({
         isTTSLoading(true);
 
         try {
-            const gptRes = await fetch("/api/parser", {
-                method: "POST",
+            const gptRes = await fetch('/api/parser', {
+                method: 'POST',
                 body: pdfToParse
             });
     
             const gptParsedResponse = await gptRes.json();
             const parsedJSONScript = JSON.parse(gptParsedResponse.content);
-            console.log("GPT response", parsedJSONScript);
+            console.log('GPT response', parsedJSONScript);
 
             const audioSuccessfullyAttached = await attachAudioObjects(parsedJSONScript.lines);
 
@@ -85,7 +85,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
             return;
         } catch (e: any) {
-            console.error("gpt error: ", e);
+            console.error('gpt error: ', e);
         }
     }
 
@@ -106,11 +106,10 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
     const convertTextToSpeech = async (line: string) => {
         try {
-            const res = await fetch("/api/TTS", {
-                method: "POST",
-                // body: 
+            const res = await fetch('/api/TTS', {
+                method: 'POST',
                 body: JSON.stringify(line),
-                headers: { "Content-Type": "audio/mp3"}
+                headers: { 'Content-Type': 'audio/mp3'}
             });
 
             const res_data = await res.json();
@@ -121,7 +120,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             return arrayBuffer;
 
         } catch (e: any) {
-            console.error("TTS error: ", e);
+            console.error('TTS error: ', e);
         }
     }
 

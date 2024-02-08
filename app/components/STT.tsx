@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 // const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
 // const fetch = require("cross-fetch");
@@ -43,9 +43,9 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
 
     const startDialogue = () => {
 
-        console.log('current index', currIndex);
-        console.log('index', index);
-        console.log('user selected character', userSelectedCharacter);
+        console.log('current index: ', currIndex);
+        console.log('index: ', index);
+        console.log('user selected character: ', userSelectedCharacter);
 
         const newRecognition = new SpeechRecognition();
         
@@ -58,7 +58,8 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
         }
 
         const currentLine = script[currIndex];
-        console.log('what is currentline', currentLine);
+        console.log('current line object: ', currentLine);
+        console.log('current line: ', currentLine.line);
 
         // if current line is a scene direction, we skip
         if (currentLine.direction || currentLine.directions) {
@@ -70,11 +71,11 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
         } else if (currentLine.character?.includes(userSelectedCharacter)
             || userSelectedCharacter.includes(currentLine.character!)) {
 
-                console.log('enter user block');
+                console.log('entered user block');
                 newRecognition.onresult = (e: any) => {
                     const transcript = e.results[0][0].transcript.toLowerCase().replace(/\s/g, '');
                     console.log('transcribed: ', transcript);
-    
+
                     checkInputAgainstScript(transcript, currentLine.line!);
                 }
 
@@ -88,23 +89,23 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
                 console.log('listening...');
                 return;
         } else {
-            console.log('enters moby block');
-            console.log('the current line', currentLine.line);
+            console.log('entered moby block');
             // console.log('current audio', currentLine.audioBuffer);
             playAudioBuffer(currentLine.audioBuffer);
             return;
         }
     }
 
-    // const checkInputAgainstScript = (currIndex:number, speechInput: string) => {
     const checkInputAgainstScript = (transcribed: string, scriptLine: string) => {
         const score = fuzzball.ratio(transcribed, script[currIndex].line);
-        console.log('score', score);
+        // console.log("score", score);
         if (score > 70) {
             currIndex++;
             updateIndex(currIndex);
             startDialogue();
         } else {
+            console.log('try again');
+            // TODO: some form of try again alert 
             startDialogue();
         }
 
@@ -113,8 +114,6 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
 
     // helper function to stream the audioBuffer object 
     const playAudioBuffer = async (audioBuffer: Buffer | undefined) => {
-        // console.log('what is this', audioBuffer);
-        // console.log('type', typeof audioBuffer);
 
         console.log('entered audio player');
 
@@ -125,8 +124,8 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
     
         try {
             if (await audioBuffer.byteLength > 0) {
-                console.log('audioBuffer', audioBuffer);
-                console.log('audioBuffer', audioBuffer.buffer);
+                // console.log("audioBuffer", audioBuffer);
+                // console.log("audioBuffer", audioBuffer.buffer);
                 audioContext.decodeAudioData(await audioBuffer.buffer, (buffer) => {
                     audioContext.resume();
                     outputSource= audioContext.createBufferSource();
@@ -134,7 +133,7 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
                     outputSource.buffer = buffer;
                     outputSource.start(0);
 
-                    outputSource.addEventListener("ended", () => {
+                    outputSource.addEventListener('ended', () => {
                         console.log('moby turn over');
 
                         currIndex++;
@@ -143,7 +142,7 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
                     });
                 })
             } else {
-                console.error("did not find any arguments");
+                console.error('did not find any arguments in audio player');
             }
         } catch (e: any) {
             console.error(e);
@@ -154,7 +153,7 @@ export const STT: React.FC<STTProps> = ({ script, userSelectedCharacter, index, 
     return (
         <>
             <button 
-                style={{ border: "1px solid white"}} 
+                style={{ border: '1px solid white'}} 
                 onClick={() => startFunction()}>
                 Start
             </button>
