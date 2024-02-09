@@ -119,7 +119,12 @@ export const STT: React.FC<STTProps> = ({
         }
 
         return;
-    }
+    }   
+
+    // For example, store it as a global variable or within your application's context
+    //   window.myAudioBuffer = decodedBuffer;
+
+    // by setting the audioBuffer to a global variable, you have access to it again.. 
 
     const playAudioBuffer = (audioBuffer: AudioBuffer) => {
         outputSource = audioContext.createBufferSource();
@@ -144,6 +149,8 @@ export const STT: React.FC<STTProps> = ({
 
     
         if (!audioBuffer) return null;
+
+        let globalBuffer;
     
         // try {
         //     if (await audioBuffer.byteLength > 0) {
@@ -171,9 +178,18 @@ export const STT: React.FC<STTProps> = ({
         //     console.error(e);
         // }
 
+        // try {
+        //     if (await audioBuffer.byteLength > 0) {
+        //         audioContext.decodeAudioData(await audioBuffer.buffer, playAudioBuffer);
+        //     }
+        // } catch (e: any) {
+        //     console.error(e);
+        // }
+
         try {
             if (await audioBuffer.byteLength > 0) {
-                audioContext.decodeAudioData(await audioBuffer.buffer, playAudioBuffer);
+                globalBuffer = await audioContext.decodeAudioData(await audioBuffer.buffer);
+                
             }
         } catch (e: any) {
             console.error(e);
