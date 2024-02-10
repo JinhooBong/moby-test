@@ -5,7 +5,7 @@ export interface ScriptLineObject {
     directions?: string,
     character?: string,
     line?: string,
-    audioBuffer?: Buffer | undefined,
+    audioBuffer?: AudioBuffer | undefined,
     currLineIndex?: number,
     startClicked?: boolean
 }

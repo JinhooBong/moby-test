@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent } from 'react';
 import { ScriptLineObject } from './ScriptLine';
+import { decode } from 'punycode';
 
 interface UploadFormProps {
     setTheScript: Function,
@@ -92,12 +93,25 @@ export const UploadForm: React.FC<UploadFormProps> = ({
     // Helper function to make sure that all audio buffer objects have been appended before returning true
     const attachAudioObjects = async (scriptLines: ScriptLineObject[]) => {
 
+        const audioContext = new AudioContext();
+
         // forEach is synchronous so until this operation is complete, it won't reach the return 
         scriptLines.forEach((lineObj: ScriptLineObject) => {
             if ((!lineObj.direction && !lineObj.directions) && lineObj.line) {
                 let lineToTranspose = lineObj.line.replace(/ *\([^)]*\) */g, "");
                 convertTextToSpeech(lineToTranspose)
-                    .then((buffer) => lineObj.audioBuffer = buffer);
+                    .then((buffer) => {
+                        // console.log('type buffer', typeof buffer);
+                        // const arrayBuffer = Buffer.from(buffer!);
+                        const arrayBuffer = new Uint8Array(buffer!).buffer;
+                        // console.log('array', typeof arrayBuffer);
+                        audioContext.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+                            // console.log('decoded', decodedBuffer);
+                            lineObj.audioBuffer = decodedBuffer;
+                            // lineObj.audioBuffer = buffer;
+                        })
+                    });
+                    
             }
         })
 
@@ -114,6 +128,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
             const res_data = await res.json();
             // console.log('res data?', res_data);
+            // console.log('buffer', res_data.buffer);
             const arrayBuffer = Buffer.from(res_data.buffer);
             // console.log('after', arrayBuffer);
 

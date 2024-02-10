@@ -117,6 +117,7 @@ export default function Home() {
 
     return (
         <>  
+            <h1 style={{ fontSize: '50px', marginBottom: '50px' }}>Ready Reader</h1>
             {/* {console.log('script', script)} */}
             <div style={{ display: hideUpload ? 'none' : 'block' }}>
                 <UploadForm

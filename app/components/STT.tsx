@@ -121,11 +121,6 @@ export const STT: React.FC<STTProps> = ({
         return;
     }   
 
-    // For example, store it as a global variable or within your application's context
-    //   window.myAudioBuffer = decodedBuffer;
-
-    // by setting the audioBuffer to a global variable, you have access to it again.. 
-
     const playAudioBuffer = (audioBuffer: AudioBuffer) => {
         outputSource = audioContext.createBufferSource();
         outputSource.connect(audioContext.destination);
@@ -139,18 +134,14 @@ export const STT: React.FC<STTProps> = ({
             updateIndex(currIndex);
             startDialogue();
         }); 
-
     }
 
     // helper function to stream the audioBuffer object 
-    const playAudioSound = async (audioBuffer: Buffer | undefined) => {
+    const playAudioSound = async (audioBuffer: AudioBuffer | undefined) => {
 
         console.log('entered audio player');
 
-    
         if (!audioBuffer) return null;
-
-        let globalBuffer;
     
         // try {
         //     if (await audioBuffer.byteLength > 0) {
@@ -178,18 +169,10 @@ export const STT: React.FC<STTProps> = ({
         //     console.error(e);
         // }
 
-        // try {
-        //     if (await audioBuffer.byteLength > 0) {
-        //         audioContext.decodeAudioData(await audioBuffer.buffer, playAudioBuffer);
-        //     }
-        // } catch (e: any) {
-        //     console.error(e);
-        // }
-
         try {
-            if (await audioBuffer.byteLength > 0) {
-                globalBuffer = await audioContext.decodeAudioData(await audioBuffer.buffer);
-                
+            if (await audioBuffer.length > 0) {
+                // audioContext.decodeAudioData(audioBuffer, playAudioBuffer);
+                playAudioBuffer(audioBuffer);
             }
         } catch (e: any) {
             console.error(e);
@@ -210,25 +193,25 @@ export const STT: React.FC<STTProps> = ({
         setUserClickedReset(clicked);
     }
 
-    // const reset = () => {
+    const reset = () => {
 
-    //     currIndex = 0;
-    //     updateIndex(0);
-    //     // setUserClickedReset(true);
-    //     handleResetClick(true);
+        currIndex = 0;
+        updateIndex(0);
+        setUserClickedReset(true);
+        handleResetClick(true);
 
-    //     // startFunction();
-    //     startDialogue();
-    // }
+        // startFunction();
+        startDialogue();
+    }
     
     return (
         <>
             <button 
                 style={{ border: '1px solid white'}} 
-                // onClick={() => userHasStarted ? reset() : startFunction()}>
-                // {userHasStarted ? "Restart" : "Start"}
-                onClick={() => startFunction()}>
-                Start
+                onClick={() => userHasStarted ? reset() : startFunction()}>
+                {userHasStarted ? "Restart" : "Start"}
+                {/* onClick={() => startFunction()}> */}
+                {/* Start */}
             </button>
         </>
     )
