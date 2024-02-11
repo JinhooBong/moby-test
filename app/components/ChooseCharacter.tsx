@@ -1,12 +1,3 @@
-/* 
-    A component that will render before the script so that the user can identify
-    which character they will be reading for. 
-
-    Input: an array of strings 
-
-    Output: updating the state in the parent value with the chosen character
-
-*/
 import React from 'react';
 
 interface ChooseCharacterProps {
@@ -14,6 +5,14 @@ interface ChooseCharacterProps {
     setCharacter: Function
 }
 
+/* 
+    A component that will render before the script so that the user can identify
+    which character they will be reading for. 
+
+    Input: an array of strings 
+
+    Output: updating the state in the parent value with the chosen character
+*/
 export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({ characters, setCharacter }) => {
 
     const [selectedCharacter, setSelectedCharacter] = React.useState('');

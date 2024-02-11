@@ -50,7 +50,7 @@ export const STT: React.FC<STTProps> = ({
     // it should essentially reset the whole script to be run as if for the first time
     const startFunction = () => {
         console.log('start function called');
-        // let the parent component know that it has started.
+        // this points to the parent component to alert the highlighting to start
         handleStartClick(true);
 
         updateIndex(0);
@@ -83,8 +83,6 @@ export const STT: React.FC<STTProps> = ({
             console.log('play function should be stopped');
             return;
         } 
-
-        // otherwise we continue playing the thing 
 
         currIndex = indexOfTheCurrentLine;
 
@@ -121,7 +119,7 @@ export const STT: React.FC<STTProps> = ({
                     const transcript = e.results[0][0].transcript.toLowerCase().replace(/\s/g, '');
                     console.log('transcribed: ', transcript);
 
-                    checkInputAgainstScript(transcript, currentLine.line!);
+                    checkInputAgainstScript(transcript);
                 }
 
                 newRecognition.onend = (e: any) => {
@@ -140,9 +138,8 @@ export const STT: React.FC<STTProps> = ({
         }
     }
 
-    const checkInputAgainstScript = (transcribed: string, scriptLine: string) => {
+    const checkInputAgainstScript = (transcribed: string) => {
         const score = fuzzball.ratio(transcribed, script[currIndex].line);
-        // console.log("score", score);
         if (score > 70) {
             currIndex++;
             updateIndex(currIndex);
