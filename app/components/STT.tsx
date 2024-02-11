@@ -7,6 +7,7 @@ interface STTProps {
     script: ScriptLineObject[],
     userSelectedCharacter: string,
     index: number,
+    // index: React.MutableRefObject<number>,
     updateIndex: Function,
     handleStartClick: Function
 }
@@ -26,6 +27,15 @@ export const STT: React.FC<STTProps> = ({
     handleStartClick 
 }) => {
 
+
+
+    // TODO: the problem here with INDEX variable (the one that is in charge of highlighting)
+    // is being passed in from the parent component, meaning it's value is consistent throughout the loop
+    // and it isn't updated without re-render
+    // this should be resolvable by refactoring with useRef perhaps?
+
+
+
     const fuzzball = require('fuzzball');
     const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -34,11 +44,13 @@ export const STT: React.FC<STTProps> = ({
 
     let currIndex = 0;
 
+    // const incrementParentIndex = () => {
+    //     index.current += 1;
+    // }
+
     const startRef = React.useRef(false);
     
     const resetRef = React.useRef(false);
-
-    let stopAudio = false;
 
     // useRef is primarily used to access and manipulate the DOM or to store mutable values that don't trigger re-renders. 
     // because we don't want this to exactly re-render anything, we'll use ref
@@ -54,6 +66,8 @@ export const STT: React.FC<STTProps> = ({
         console.log('start function called');
         // let the parent component know that it has started.
         handleStartClick(true);
+
+        updateIndex(0);
         
         // set state variable as started
         // setUserHasStarted(true);    
@@ -70,7 +84,10 @@ export const STT: React.FC<STTProps> = ({
         // set the indices to 0
         currIndex = 0;
         updateIndex(0);
+        // index.current = 0;
+        handleStartClick(false);
 
+        startRef.current = true;
         shouldContinueRef.current = false;
         resetRef.current = true;
     }
@@ -112,6 +129,7 @@ export const STT: React.FC<STTProps> = ({
             console.log('hit scene direction so skip');
             currIndex++;
             updateIndex(currIndex);
+            // incrementParentIndex();
             startDialogue(currIndex);
             return;
         } else if (currentLine.character?.includes(userSelectedCharacter)
@@ -147,6 +165,7 @@ export const STT: React.FC<STTProps> = ({
         if (score > 70) {
             currIndex++;
             updateIndex(currIndex);
+            // incrementParentIndex();
             // startDialogue();
             startDialogue(currIndex);
         } else {
@@ -168,12 +187,18 @@ export const STT: React.FC<STTProps> = ({
         // TODO: need to be able to stop streaming the sound when the reset is clicked..
         // when reset is clicked, outputSource.stop();
 
+        // if (resetRef.current) outputSource.stop();
+
+        // outputSource.stop() SHOULD stop the audio even if it's midway 
+        // according to documentation
+        // HOWEVER, it won't recognize that the reset button has been clicked
 
         outputSource.addEventListener('ended', () => {
             console.log('moby turn over');
 
             currIndex++;
             updateIndex(currIndex);
+            // incrementParentIndex();
             // startDialogue();
             startDialogue(currIndex);
         }); 
@@ -203,8 +228,8 @@ export const STT: React.FC<STTProps> = ({
             // setShouldContinue(true);
             // setUserHasStarted(false);
             startRef.current = false;
-            updateIndex(0);
-            stopAudio = true;
+            // updateIndex(0);
+            // index.current = 0;
             // shouldContinueRef.current = true;
         }
     }, [resetRef.current])

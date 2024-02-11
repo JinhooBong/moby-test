@@ -153,6 +153,7 @@ export default function Home() {
                     <STT script={script.lines} 
                         userSelectedCharacter={selectedCharacter} 
                         index={indexOfCurrLine} 
+                        // index={indexOfCurrLineRef}
                         updateIndex={handleIndexUpdate}
                         handleStartClick={handleClickStart}
                         />
