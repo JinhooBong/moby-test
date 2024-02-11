@@ -15,7 +15,7 @@ interface STTProps {
 
     CERTAIN SCRIPTS - will not be able to read the last couple lines because of 
     TTS API limitations. Should be solved if we upgrade to paid tier 
-
+    
  --------------------------------------------------------------------------- */
 
 export const STT: React.FC<STTProps> = ({ 
@@ -34,23 +34,60 @@ export const STT: React.FC<STTProps> = ({
 
     let currIndex = 0;
 
-    const [userHasStarted, setUserHasStarted] = React.useState(false);
-    const [userClickedReset, setUserClickedReset] = React.useState(false);
+    const startRef = React.useRef(false);
+    
+    const resetRef = React.useRef(false);
 
-    console.log('script.length', script.length);
+    let stopAudio = false;
 
+    // useRef is primarily used to access and manipulate the DOM or to store mutable values that don't trigger re-renders. 
+    // because we don't want this to exactly re-render anything, we'll use ref
+    const shouldContinueRef = React.useRef(true);
+
+    // console.log('start? ', startRef.current);
+    // console.log('user clicked reset? ', resetRef.current);
+    // console.log('shouldContinue value', shouldContinueRef.current);
+
+    // Start function will be invoked when the user clicks the button
+    // it should essentially reset the whole script to be run as if for the first time
     const startFunction = () => {
+        console.log('start function called');
+        // let the parent component know that it has started.
         handleStartClick(true);
-        setUserHasStarted(true);
-        setUserClickedReset(false);
+        
+        // set state variable as started
+        // setUserHasStarted(true);    
+        startRef.current = true;
+        resetRef.current = false;
+        shouldContinueRef.current = true;
 
-        startDialogue();
+        startDialogue(0);
     }
 
-    const startDialogue = () => {
-        console.log('reset clicked', userClickedReset);
+    const reset = () => {
+        console.log('reset called');
 
-        if (userClickedReset) return;
+        // set the indices to 0
+        currIndex = 0;
+        updateIndex(0);
+
+        shouldContinueRef.current = false;
+        resetRef.current = true;
+    }
+
+    const startDialogue = ( indexOfTheCurrentLine: number ) => {
+
+        // console.log('what is shouldContinue', shouldContinueRef.current);
+        if (!shouldContinueRef.current) {
+            // if shouldContinue is false 
+            // we should return
+            console.log('play function should be stopped');
+            return;
+        } 
+
+        // otherwise we continue playing the thing 
+
+        currIndex = indexOfTheCurrentLine;
 
         console.log('current index: ', currIndex);
         console.log('index: ', index);
@@ -67,15 +104,15 @@ export const STT: React.FC<STTProps> = ({
         }
 
         const currentLine = script[currIndex];
-        console.log('current line object: ', currentLine);
-        console.log('current line: ', currentLine.line);
+        // console.log('current line object: ', currentLine);
+        // console.log('current line: ', currentLine.line);
 
         // if current line is a scene direction, we skip
         if (currentLine.direction || currentLine.directions) {
             console.log('hit scene direction so skip');
             currIndex++;
             updateIndex(currIndex);
-            startDialogue();
+            startDialogue(currIndex);
             return;
         } else if (currentLine.character?.includes(userSelectedCharacter)
             || userSelectedCharacter.includes(currentLine.character!)) {
@@ -99,7 +136,6 @@ export const STT: React.FC<STTProps> = ({
                 return;
         } else {
             console.log('entered moby block');
-            // console.log('current audio', currentLine.audioBuffer);
             playAudioSound(currentLine.audioBuffer);
             return;
         }
@@ -111,11 +147,13 @@ export const STT: React.FC<STTProps> = ({
         if (score > 70) {
             currIndex++;
             updateIndex(currIndex);
-            startDialogue();
+            // startDialogue();
+            startDialogue(currIndex);
         } else {
             console.log('try again');
             // TODO: some form of try again alert 
-            startDialogue();
+            // startDialogue();
+            startDialogue(currIndex);
         }
 
         return;
@@ -127,12 +165,17 @@ export const STT: React.FC<STTProps> = ({
         outputSource.buffer = audioBuffer;
         outputSource.start();
 
+        // TODO: need to be able to stop streaming the sound when the reset is clicked..
+        // when reset is clicked, outputSource.stop();
+
+
         outputSource.addEventListener('ended', () => {
             console.log('moby turn over');
 
             currIndex++;
             updateIndex(currIndex);
-            startDialogue();
+            // startDialogue();
+            startDialogue(currIndex);
         }); 
     }
 
@@ -142,36 +185,9 @@ export const STT: React.FC<STTProps> = ({
         console.log('entered audio player');
 
         if (!audioBuffer) return null;
-    
-        // try {
-        //     if (await audioBuffer.byteLength > 0) {
-        //         // console.log("audioBuffer", audioBuffer);
-        //         // console.log("audioBuffer", audioBuffer.buffer);
-        //         audioContext.decodeAudioData(await audioBuffer.buffer, (buffer) => {
-        //             audioContext.resume();
-        //             outputSource= audioContext.createBufferSource();
-        //             outputSource.connect(audioContext.destination);
-        //             outputSource.buffer = buffer;
-        //             outputSource.start(0);
-
-        //             outputSource.addEventListener('ended', () => {
-        //                 console.log('moby turn over');
-
-        //                 currIndex++;
-        //                 updateIndex(currIndex);
-        //                 startDialogue();
-        //             });
-        //         })
-        //     } else {
-        //         console.error('did not find any arguments in audio player');
-        //     }
-        // } catch (e: any) {
-        //     console.error(e);
-        // }
 
         try {
             if (await audioBuffer.length > 0) {
-                // audioContext.decodeAudioData(audioBuffer, playAudioBuffer);
                 playAudioBuffer(audioBuffer);
             }
         } catch (e: any) {
@@ -180,36 +196,25 @@ export const STT: React.FC<STTProps> = ({
 
         return;
     }
-
-    /* 
-        When we reset, we want to set the current index to 0, and the parent variable (index) to 0
-        essentially to reset the start of the script
-        we have a variable to check if the user has clicked reset
-        if the user has clicked reset, we want to stop the call stack (initiated when the user clicked start)
-        and then start from the beginning 
-    */ 
-
-    const handleResetClick = (clicked: boolean) => {
-        setUserClickedReset(clicked);
-    }
-
-    const reset = () => {
-
-        currIndex = 0;
-        updateIndex(0);
-        setUserClickedReset(true);
-        handleResetClick(true);
-
-        // startFunction();
-        startDialogue();
-    }
+    
+    React.useEffect(() => {
+        if (resetRef.current) {
+            // startDialogue(0, 0);
+            // setShouldContinue(true);
+            // setUserHasStarted(false);
+            startRef.current = false;
+            updateIndex(0);
+            stopAudio = true;
+            // shouldContinueRef.current = true;
+        }
+    }, [resetRef.current])
     
     return (
         <>
             <button 
                 style={{ border: '1px solid white'}} 
-                onClick={() => userHasStarted ? reset() : startFunction()}>
-                {userHasStarted ? "Restart" : "Start"}
+                onClick={() => startRef.current ? reset() : startFunction()}>
+                {startRef.current ? "Reset" : "Start"}
                 {/* onClick={() => startFunction()}> */}
                 {/* Start */}
             </button>

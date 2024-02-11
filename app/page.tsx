@@ -19,6 +19,7 @@ export default function Home() {
     const [script, setScript] = React.useState<ScriptObject>();
     const [showScript, setShowScript] = React.useState<boolean | undefined>(false);
     const [indexOfCurrLine, setIndexOfCurrLine] = React.useState<number>(0);
+    // const indexOfCurrLineRef = React.useRef(0);
     const [listOfCharacters, setListOfCharacters] = React.useState<string[]>([]);
     const [selectedCharacter, setSelectedCharacter] = React.useState<string | undefined>("");
 
@@ -117,7 +118,7 @@ export default function Home() {
 
     return (
         <>  
-            <h1 style={{ fontSize: '50px', marginBottom: '50px' }}>Ready Reader</h1>
+            <h1 style={{ fontSize: '50px', marginBottom: '50px', display: hideUpload ? 'none' : 'block' }}>Ready Reader</h1>
             {/* {console.log('script', script)} */}
             <div style={{ display: hideUpload ? 'none' : 'block' }}>
                 <UploadForm

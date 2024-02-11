@@ -105,11 +105,11 @@ export const UploadForm: React.FC<UploadFormProps> = ({
                         // const arrayBuffer = Buffer.from(buffer!);
                         const arrayBuffer = new Uint8Array(buffer!).buffer;
                         // console.log('array', typeof arrayBuffer);
-                        audioContext.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+                        arrayBuffer ? audioContext.decodeAudioData(arrayBuffer, (decodedBuffer) => {
                             // console.log('decoded', decodedBuffer);
                             lineObj.audioBuffer = decodedBuffer;
                             // lineObj.audioBuffer = buffer;
-                        })
+                        }) : null; // catch the error
                     });
                     
             }
