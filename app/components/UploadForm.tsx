@@ -3,6 +3,7 @@
 import React, { useState, FormEvent } from 'react';
 import { ScriptLineObject } from './ScriptLine';
 import { decode } from 'punycode';
+import { loadGetInitialProps } from 'next/dist/shared/lib/utils';
 
 interface UploadFormProps {
     setTheScript: Function,
@@ -11,7 +12,9 @@ interface UploadFormProps {
     isPDFLoading: Function,
     isGPTLoading: Function,
     isTTSLoading: Function,
-    isLoading: Function
+    isLoading: Function,
+    loadingPercentage: number,
+    updateLoading: Function
 }
 
 export const UploadForm: React.FC<UploadFormProps> = ({ 
@@ -21,10 +24,14 @@ export const UploadForm: React.FC<UploadFormProps> = ({
     isPDFLoading, 
     isGPTLoading,
     isTTSLoading,
-    isLoading
+    isLoading,
+    loadingPercentage,
+    updateLoading
 }) => {
 
     const [file, setFile] = useState<File>();
+
+    let percentage = 0;
 
     const parseFileIntoPDF = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -50,6 +57,8 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             // pdfAPI returns a string 
             const pdfAPIResponse = textResponse.message;
             console.log('pdf response: ', pdfAPIResponse);
+            percentage += 30;
+            updateLoading(percentage);
 
             parseIntoJSON(pdfAPIResponse);
 
@@ -65,6 +74,20 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
         isGPTLoading(true);
         isTTSLoading(true);
+
+        // after 3 seconds, increase bar to 60
+        setTimeout(() => {
+            percentage += 30;
+            updateLoading(percentage);
+        }, 3000);
+
+        // after 10 seconds, increase bar to 100
+        setTimeout(() => {
+            setInterval(() => {
+                percentage += 5;
+                updateLoading(percentage);
+            }, 2000);
+        }, 5000);
 
         try {
             const gptRes = await fetch('/api/parser', {
@@ -92,7 +115,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
     // Helper function to make sure that all audio buffer objects have been appended before returning true
     const attachAudioObjects = async (scriptLines: ScriptLineObject[]) => {
-
+        
         const audioContext = new AudioContext();
 
         // forEach is synchronous so until this operation is complete, it won't reach the return 
@@ -111,7 +134,6 @@ export const UploadForm: React.FC<UploadFormProps> = ({
                             // lineObj.audioBuffer = buffer;
                         }) : null; // catch the error
                     });
-                    
             }
         })
 
@@ -119,6 +141,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
     }
 
     const convertTextToSpeech = async (line: string) => {
+
         try {
             const res = await fetch('/api/TTS', {
                 method: 'POST',
@@ -137,6 +160,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
         } catch (e: any) {
             console.error('TTS error: ', e);
         }
+
     }
 
     return (

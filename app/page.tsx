@@ -8,6 +8,7 @@ import { ScriptLineObject } from './components/ScriptLine';
 import { LoadingBar } from './components/LoadingBar';
 import { ChooseCharacter } from './components/ChooseCharacter';
 import { STT } from './components/STT';
+import { CLIENT_STATIC_FILES_RUNTIME_POLYFILLS_SYMBOL } from 'next/dist/shared/lib/constants';
 
 export interface ScriptObject {
     lines: ScriptLineObject[]
@@ -27,6 +28,8 @@ export default function Home() {
     const [parsePDFLoading, setParsePDFLoading] = React.useState<boolean | undefined>(false);
     const [gptLoading, setGPTLoading] = React.useState<boolean | undefined>(false);
     const [ttsLoading, setTTSLoading] = React.useState<boolean | undefined>(false);
+
+    const [loadingPercentage, setLoadingPercentage] = React.useState(0);
 
     // action state variables
     const [hideUpload, setHideUpload] = React.useState<boolean>(false);
@@ -115,6 +118,10 @@ export default function Home() {
         setStartClicked(click);
     }
 
+    const handleLoadingPercent = (percentage: number) => {
+        setLoadingPercentage(percentage);
+    }
+
     return (
         <>  
             <h1 style={{ fontSize: '50px', marginBottom: '50px', display: hideUpload ? 'none' : 'block' }}>Ready Reader</h1>
@@ -128,6 +135,8 @@ export default function Home() {
                     isPDFLoading={handlePDFLoading}
                     isGPTLoading={handleGPTLoading}
                     isTTSLoading={handleTTSLoading}
+                    loadingPercentage={loadingPercentage}
+                    updateLoading={handleLoadingPercent}
                 />
             </div>
             {parsePDFLoading || gptLoading || ttsLoading ? 
@@ -135,6 +144,7 @@ export default function Home() {
                     parseLoading={parsePDFLoading} 
                     gptLoading={gptLoading} 
                     ttsLoading={ttsLoading}
+                    progress={loadingPercentage}
                 /> 
                 : <></>}
             {!isLoading && script && !selectedCharacter ? 
