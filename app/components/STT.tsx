@@ -7,7 +7,6 @@ interface STTProps {
     script: ScriptLineObject[],
     userSelectedCharacter: string,
     index: number,
-    // index: React.MutableRefObject<number>,
     updateIndex: Function,
     handleStartClick: Function
 }
@@ -27,15 +26,6 @@ export const STT: React.FC<STTProps> = ({
     handleStartClick 
 }) => {
 
-
-
-    // TODO: the problem here with INDEX variable (the one that is in charge of highlighting)
-    // is being passed in from the parent component, meaning it's value is consistent throughout the loop
-    // and it isn't updated without re-render
-    // this should be resolvable by refactoring with useRef perhaps?
-
-
-
     const fuzzball = require('fuzzball');
     const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -43,10 +33,6 @@ export const STT: React.FC<STTProps> = ({
     let outputSource;
 
     let currIndex = 0;
-
-    // const incrementParentIndex = () => {
-    //     index.current += 1;
-    // }
 
     const startRef = React.useRef(false);
     
@@ -68,9 +54,7 @@ export const STT: React.FC<STTProps> = ({
         handleStartClick(true);
 
         updateIndex(0);
-        
-        // set state variable as started
-        // setUserHasStarted(true);    
+    
         startRef.current = true;
         resetRef.current = false;
         shouldContinueRef.current = true;
@@ -81,10 +65,8 @@ export const STT: React.FC<STTProps> = ({
     const reset = () => {
         console.log('reset called');
 
-        // set the indices to 0
         currIndex = 0;
         updateIndex(0);
-        // index.current = 0;
         handleStartClick(false);
 
         startRef.current = true;
@@ -129,7 +111,6 @@ export const STT: React.FC<STTProps> = ({
             console.log('hit scene direction so skip');
             currIndex++;
             updateIndex(currIndex);
-            // incrementParentIndex();
             startDialogue(currIndex);
             return;
         } else if (currentLine.character?.includes(userSelectedCharacter)
@@ -165,13 +146,10 @@ export const STT: React.FC<STTProps> = ({
         if (score > 70) {
             currIndex++;
             updateIndex(currIndex);
-            // incrementParentIndex();
-            // startDialogue();
             startDialogue(currIndex);
         } else {
             console.log('try again');
             // TODO: some form of try again alert 
-            // startDialogue();
             startDialogue(currIndex);
         }
 
@@ -198,8 +176,6 @@ export const STT: React.FC<STTProps> = ({
 
             currIndex++;
             updateIndex(currIndex);
-            // incrementParentIndex();
-            // startDialogue();
             startDialogue(currIndex);
         }); 
     }
@@ -224,13 +200,7 @@ export const STT: React.FC<STTProps> = ({
     
     React.useEffect(() => {
         if (resetRef.current) {
-            // startDialogue(0, 0);
-            // setShouldContinue(true);
-            // setUserHasStarted(false);
             startRef.current = false;
-            // updateIndex(0);
-            // index.current = 0;
-            // shouldContinueRef.current = true;
         }
     }, [resetRef.current])
     
@@ -240,8 +210,6 @@ export const STT: React.FC<STTProps> = ({
                 style={{ border: '1px solid white'}} 
                 onClick={() => startRef.current ? reset() : startFunction()}>
                 {startRef.current ? "Reset" : "Start"}
-                {/* onClick={() => startFunction()}> */}
-                {/* Start */}
             </button>
         </>
     )

@@ -19,7 +19,6 @@ export default function Home() {
     const [script, setScript] = React.useState<ScriptObject>();
     const [showScript, setShowScript] = React.useState<boolean | undefined>(false);
     const [indexOfCurrLine, setIndexOfCurrLine] = React.useState<number>(0);
-    // const indexOfCurrLineRef = React.useRef(0);
     const [listOfCharacters, setListOfCharacters] = React.useState<string[]>([]);
     const [selectedCharacter, setSelectedCharacter] = React.useState<string | undefined>("");
 
@@ -153,7 +152,6 @@ export default function Home() {
                     <STT script={script.lines} 
                         userSelectedCharacter={selectedCharacter} 
                         index={indexOfCurrLine} 
-                        // index={indexOfCurrLineRef}
                         updateIndex={handleIndexUpdate}
                         handleStartClick={handleClickStart}
                         />
