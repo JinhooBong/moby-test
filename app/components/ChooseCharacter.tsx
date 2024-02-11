@@ -1,4 +1,3 @@
-
 /* 
     A component that will render before the script so that the user can identify
     which character they will be reading for. 
@@ -43,14 +42,14 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({ characters, se
                 <label>
                     Please select who you're reading for:
                     <br />
-                    <select value={selectedCharacter} onChange={(e) => handleChange(e)} style={{ color: "black" }}>
+                    <select value={selectedCharacter} onChange={(e) => handleChange(e)} style={{ color: "black", margin: "20px", padding: "0 20px" }}>
                         {characters.map((character, id) => {
                             return <option key={id} value={character}>{character}</option>
                         })}
                     </select>
                 </label>
                 <br />
-                <input type="submit" value="Submit" />
+                <input type="submit" value="Submit" style={{ border: "1px solid white", padding: "0 10px", borderRadius: "5px" }}/>
             </form>
 
         </>
