@@ -41,7 +41,7 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({ characters, se
                 <label>
                     Please select who you're reading for:
                     <br />
-                    <select value={selectedCharacter} onChange={(e) => handleChange(e)} style={{ color: "black", margin: "20px", padding: "0 20px" }}>
+                    <select value={selectedCharacter} onChange={(e) => handleChange(e)} style={{ color: "black", margin: "20px", padding: "0 20px", textAlign: "center" }}>
                         {characters.map((character, id) => {
                             return <option key={id} value={character}>{character}</option>
                         })}

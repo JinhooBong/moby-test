@@ -15,6 +15,12 @@ interface STTProps {
 
     CERTAIN SCRIPTS - will not be able to read the last couple lines because of 
     TTS API limitations. Should be solved if we upgrade to paid tier 
+
+    TODO: the Web Audio is a bit buggy where it will be a bit laggy with how the sound
+    is played.. or it won't play it... or it's laggy
+
+    there are alternatives to Web Audio API that take in AudioBuffer objects so we do
+    have possible paths forward so not a big blocker but something to keep in mind
     
  --------------------------------------------------------------------------- */
 
@@ -42,9 +48,9 @@ export const STT: React.FC<STTProps> = ({
     // because we don't want this to exactly re-render anything, we'll use ref
     const shouldContinueRef = React.useRef(true);
 
-    // console.log('start? ', startRef.current);
-    // console.log('user clicked reset? ', resetRef.current);
-    // console.log('shouldContinue value', shouldContinueRef.current);
+    console.log('start? ', startRef.current);
+    console.log('user clicked reset? ', resetRef.current);
+    console.log('shouldContinue value', shouldContinueRef.current);
 
     // Start function will be invoked when the user clicks the button
     // it should essentially reset the whole script to be run as if for the first time
@@ -56,7 +62,8 @@ export const STT: React.FC<STTProps> = ({
         updateIndex(0);
     
         startRef.current = true;
-        resetRef.current = false;
+        // if resetRef is set to true, then set it to false, otherwise don't touch
+        resetRef.current ? resetRef.current = false : null;
         shouldContinueRef.current = true;
 
         startDialogue(0);
@@ -69,14 +76,17 @@ export const STT: React.FC<STTProps> = ({
         updateIndex(0);
         handleStartClick(false);
 
-        startRef.current = true;
+        // startRef.current = true;
+        startRef.current = false;
         shouldContinueRef.current = false;
         resetRef.current = true;
     }
 
     const startDialogue = ( indexOfTheCurrentLine: number ) => {
 
-        // console.log('what is shouldContinue', shouldContinueRef.current);
+        console.log('INSIDE start? ', startRef.current);
+        console.log('INSIDE user clicked reset? ', resetRef.current);
+        console.log('INSIDE shouldContinue value', shouldContinueRef.current);
         if (!shouldContinueRef.current) {
             // if shouldContinue is false 
             // we should return
@@ -181,6 +191,9 @@ export const STT: React.FC<STTProps> = ({
     const playAudioSound = async (audioBuffer: AudioBuffer | undefined) => {
 
         console.log('entered audio player');
+
+        console.log('audioBuffer', audioBuffer);
+        console.log('current line', script[currIndex].line);
 
         if (!audioBuffer) return null;
 
