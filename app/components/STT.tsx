@@ -16,11 +16,16 @@ interface STTProps {
     CERTAIN SCRIPTS - will not be able to read the last couple lines because of 
     TTS API limitations. Should be solved if we upgrade to paid tier 
 
-    TODO: the Web Audio is a bit buggy where it will be a bit laggy with how the sound
-    is played.. or it won't play it... or it's laggy
+    TODO: 
+        #1 - certain lines are being repeated and played in the middle of it being played
+        the first time around, and lines are being skipped where the user is supposed to speak
+        -- WE NEED THIS TO BE 100% readable.. no mistkaes
 
-    there are alternatives to Web Audio API that take in AudioBuffer objects so we do
-    have possible paths forward so not a big blocker but something to keep in mind
+        #2 - adding a toggle for scene directions to add pause inputs 
+
+        #3 - add a delay in the beginning when the user clicks "start", maybe showing a countdown of some sorts
+
+        #4 - having the capability to switch the character that the user has selected (after the initial selection period)
     
  --------------------------------------------------------------------------- */
 
@@ -149,7 +154,10 @@ export const STT: React.FC<STTProps> = ({
     }
 
     const checkInputAgainstScript = (transcribed: string) => {
-        const score = fuzzball.ratio(transcribed, script[currIndex].line);
+
+        const scriptLineWithoutParenthesis = script[currIndex].line?.replace(/ *\([^)]*\) */g, "");
+
+        const score = fuzzball.ratio(transcribed, scriptLineWithoutParenthesis);
         if (score > 70) {
             currIndex++;
             updateIndex(currIndex);
