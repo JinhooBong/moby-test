@@ -137,6 +137,9 @@ export default function Home() {
     }
 
     const handleLoadingPercent = (percentage: number) => {
+        if (percentage > 100) {
+            setLoadingPercentage(100);
+        }
         setLoadingPercentage(percentage);
     }
 

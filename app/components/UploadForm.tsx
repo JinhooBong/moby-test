@@ -84,8 +84,10 @@ export const UploadForm: React.FC<UploadFormProps> = ({
         // after 10 seconds, increase bar to 100
         setTimeout(() => {
             setInterval(() => {
-                percentage += 5;
-                updateLoading(percentage);
+                if (percentage < 100) {
+                    percentage += 5;
+                    updateLoading(percentage);
+                }
             }, 2000);
         }, 5000);
 
