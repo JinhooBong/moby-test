@@ -33,6 +33,24 @@ export default function Home() {
     const [hideUpload, setHideUpload] = React.useState<boolean>(false);
     const [startClicked, setStartClicked] = React.useState<boolean>(false);
 
+    const [countdown, setCountdown] = React.useState<number>(3);
+    const [isCounting, setIsCounting] = React.useState(false);
+
+    React.useEffect(() => {
+      let countdownInterval: any;
+  
+      if (countdown > 0) {
+        countdownInterval = setInterval(() => {
+          setCountdown((prevCount) => prevCount - 1);
+        }, 1000);
+      }
+  
+      // Cleanup function to clear the interval when the component is unmounted or when counting is stopped
+      return () => {
+        clearInterval(countdownInterval);
+      };
+    }, [isCounting]);
+
 
     React.useEffect(() => {
         createAvailableCharacters(script);
@@ -114,6 +132,8 @@ export default function Home() {
 
     const handleClickStart = (click: boolean) => {
         setStartClicked(click);
+        setCountdown(3); 
+        setIsCounting(true);
     }
 
     const handleLoadingPercent = (percentage: number) => {
@@ -150,7 +170,14 @@ export default function Home() {
                     setCharacter={handleCharacterChange} /> 
                 : <></>}
             {script && selectedCharacter ?
-                <> 
+                <>  
+                    {startClicked && countdown > 0 ? 
+                        <div className="modal" style={{ display: countdown > 0 ? "block" : "none" }}>
+                            <div className="modal-content">
+                                <p>{countdown}</p> 
+                            </div>
+                        </div>
+                    : <></>}
                     <Script 
                         scriptToDisplay={script.lines} 
                         currentLineIndex={indexOfCurrLine} 

@@ -22,10 +22,14 @@ interface STTProps {
         -- WE NEED THIS TO BE 100% readable.. no mistkaes
 
         #2 - adding a toggle for scene directions to add pause inputs 
+            - the elements are rendering
+            - the logic is not updating 
 
-        #3 - add a delay in the beginning when the user clicks "start", maybe showing a countdown of some sorts
+        #3 [x] - add a delay in the beginning when the user clicks "start", maybe showing a countdown of some sorts 
 
         #4 - having the capability to switch the character that the user has selected (after the initial selection period)
+
+        #5 - fix the issue where loading bar goes over 100
     
  --------------------------------------------------------------------------- */
 
@@ -60,6 +64,7 @@ export const STT: React.FC<STTProps> = ({
     // Start function will be invoked when the user clicks the button
     // it should essentially reset the whole script to be run as if for the first time
     const startFunction = () => {
+
         console.log('start function called');
         // this points to the parent component to alert the highlighting to start
         handleStartClick(true);
@@ -71,7 +76,10 @@ export const STT: React.FC<STTProps> = ({
         resetRef.current ? resetRef.current = false : null;
         shouldContinueRef.current = true;
 
-        startDialogue(0);
+        // set a 3 second timeout before starting the script 
+        setTimeout(() => {
+            startDialogue(0);
+        }, 3000);
     }
 
     const reset = () => {
@@ -122,6 +130,19 @@ export const STT: React.FC<STTProps> = ({
         // if current line is a scene direction, we skip
         if (currentLine.direction || currentLine.directions) {
             console.log('hit scene direction so skip');
+
+            // TODO: --------------------------------------------------------------------------------
+            // script[currIndex].pauseSeconds is undefined... bc the value's not getting updated 
+            console.log('seconds? ', script[currIndex].pauseSeconds);
+
+            // const secondsToPause = script[currIndex].pauseSeconds * 1000);
+
+            // setTimeout(() => {
+            // we can either do nothing here, or maybe we put lines 135-137 here
+            // }, secondsToPause)
+
+            // --------------------------------------------------------------------------------
+
             currIndex++;
             updateIndex(currIndex);
             startDialogue(currIndex);
