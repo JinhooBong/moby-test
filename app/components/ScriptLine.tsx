@@ -35,12 +35,12 @@ export const ScriptLine: React.FC<ScriptLineObject> = (
             pauseSeconds = numOfPauseSeconds;
         }  
 
-        //  WHY ISNT THIS RE-RENDERING THE LINES TO INCLUDE THE SECONDS VALUE?
-        React.useEffect(() => {
-            console.log('NUMOFPAUSE', numOfPauseSeconds);
-            pauseSeconds = numOfPauseSeconds;
-            console.log('PAUSE SECONDS', pauseSeconds);
-        }, [numOfPauseSeconds]);
+        // //  WHY ISNT THIS RE-RENDERING THE LINES TO INCLUDE THE SECONDS VALUE?
+        // React.useEffect(() => {
+        //     // console.log('NUMOFPAUSE', numOfPauseSeconds);
+        //     pauseSeconds = numOfPauseSeconds;
+        //     // console.log('PAUSE SECONDS', pauseSeconds);
+        // }, [numOfPauseSeconds]);
 
         //x------------------------------------------------------------------------------------------------------
 

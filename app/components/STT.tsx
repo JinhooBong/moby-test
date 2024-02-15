@@ -27,7 +27,7 @@ interface STTProps {
 
         #3 [x] - add a delay in the beginning when the user clicks "start", maybe showing a countdown of some sorts 
 
-        #4 - having the capability to switch the character that the user has selected (after the initial selection period)
+        #4 [x] - having the capability to switch the character that the user has selected (after the initial selection period)
 
         #5 - fix the issue where loading bar goes over 100
     
@@ -133,7 +133,7 @@ export const STT: React.FC<STTProps> = ({
 
             // TODO: --------------------------------------------------------------------------------
             // script[currIndex].pauseSeconds is undefined... bc the value's not getting updated 
-            console.log('seconds? ', script[currIndex].pauseSeconds);
+            // console.log('seconds? ', script[currIndex].pauseSeconds);
 
             // const secondsToPause = script[currIndex].pauseSeconds * 1000);
 

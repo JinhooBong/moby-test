@@ -189,6 +189,9 @@ export default function Home() {
                         updateIndex={handleIndexUpdate}
                         handleStartClick={handleClickStart}
                         />
+                    <ChooseCharacter 
+                        characters={listOfCharacters} 
+                        setCharacter={handleCharacterChange} /> 
                 </>
                 : <></>}
         </>
