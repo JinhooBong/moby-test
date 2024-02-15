@@ -21,15 +21,13 @@ interface STTProps {
         the first time around, and lines are being skipped where the user is supposed to speak
         -- WE NEED THIS TO BE 100% readable.. no mistkaes
 
-        #2 - adding a toggle for scene directions to add pause inputs 
-            - the elements are rendering
-            - the logic is not updating 
+        #2 [x] - adding a toggle for scene directions to add pause inputs 
 
         #3 [x] - add a delay in the beginning when the user clicks "start", maybe showing a countdown of some sorts 
 
         #4 [x] - having the capability to switch the character that the user has selected (after the initial selection period)
 
-        #5 - fix the issue where loading bar goes over 100
+        #5 [x] - fix the issue where loading bar goes over 100
     
  --------------------------------------------------------------------------- */
 
@@ -131,22 +129,18 @@ export const STT: React.FC<STTProps> = ({
         if (currentLine.direction || currentLine.directions) {
             console.log('hit scene direction so skip');
 
-            // TODO: --------------------------------------------------------------------------------
-            // script[currIndex].pauseSeconds is undefined... bc the value's not getting updated 
-            // console.log('seconds? ', script[currIndex].pauseSeconds);
+            const numOfSecondsToPause = script[currIndex].pauseSeconds;
 
-            // const secondsToPause = script[currIndex].pauseSeconds * 1000);
+            // number of seconds should be only defined if the property is there
+            const secondsToPause = numOfSecondsToPause ?  numOfSecondsToPause * 1000 : 0;
 
-            // setTimeout(() => {
-            // we can either do nothing here, or maybe we put lines 135-137 here
-            // }, secondsToPause)
-
-            // --------------------------------------------------------------------------------
-
-            currIndex++;
-            updateIndex(currIndex);
-            startDialogue(currIndex);
-            return;
+            setTimeout(() => {
+                currIndex++;
+                updateIndex(currIndex);
+                startDialogue(currIndex);
+                return;
+            }, secondsToPause);
+            
         } else if (currentLine.character?.includes(userSelectedCharacter)
             || userSelectedCharacter.includes(currentLine.character!)) {
 

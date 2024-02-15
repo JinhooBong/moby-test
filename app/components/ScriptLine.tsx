@@ -9,14 +9,14 @@ export interface ScriptLineObject {
     line?: string,
     audioBuffer?: AudioBuffer | undefined,
     currLineIndex?: number,
-    startClicked?: boolean
+    startClicked?: boolean,
+    addScenePauses: Function
 }
 
 export const ScriptLine: React.FC<ScriptLineObject> = (
-    { index, direction, character, line, audioBuffer, currLineIndex, startClicked, pauseSeconds }) => {
+    { index, direction, character, line, audioBuffer, currLineIndex, startClicked, pauseSeconds, addScenePauses }) => {
 
         const [showPause, setShowPause] = React.useState(false);
-        const [numOfPauseSeconds, setNumOfPauseSeconds] = React.useState(0);
 
         const handleYesClick = () => {
             setShowPause(true);
@@ -26,23 +26,12 @@ export const ScriptLine: React.FC<ScriptLineObject> = (
             setShowPause(false);
         }
 
-
-
-        // TODO: ------------------------------------------------------------------------------------------------------
-        const handlePause = (seconds: string) => {
+        const handlePause = (index: number | undefined, seconds: string) => {
             const numOfSeconds = parseInt(seconds);
-            setNumOfPauseSeconds(numOfSeconds);
-            pauseSeconds = numOfPauseSeconds;
+            if (index) {
+                addScenePauses(index, numOfSeconds);
+            }
         }  
-
-        // //  WHY ISNT THIS RE-RENDERING THE LINES TO INCLUDE THE SECONDS VALUE?
-        // React.useEffect(() => {
-        //     // console.log('NUMOFPAUSE', numOfPauseSeconds);
-        //     pauseSeconds = numOfPauseSeconds;
-        //     // console.log('PAUSE SECONDS', pauseSeconds);
-        // }, [numOfPauseSeconds]);
-
-        //x------------------------------------------------------------------------------------------------------
 
         if (direction) {
             return (
@@ -56,7 +45,7 @@ export const ScriptLine: React.FC<ScriptLineObject> = (
                             style={{ width: "40px", color: "black", textAlign: "center", margin: "0px 10px" }} 
                             min="0" max="20" 
                             value={pauseSeconds} 
-                            onChange={(e) => handlePause(e.target.value)}
+                            onChange={(e) => handlePause(index, e.target.value)}
                             /> 
                         : <></>}
                     </p>

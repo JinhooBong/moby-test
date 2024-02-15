@@ -5,10 +5,11 @@ import { ScriptLine, ScriptLineObject } from './ScriptLine';
 export interface ScriptProps {
     scriptToDisplay: ScriptLineObject[],
     currentLineIndex: number,
-    startClicked: boolean
+    startClicked: boolean,
+    handleScenePause: Function
 }
 
-export const Script: React.FC<ScriptProps> = ({ scriptToDisplay, currentLineIndex, startClicked }) => {
+export const Script: React.FC<ScriptProps> = ({ scriptToDisplay, currentLineIndex, startClicked, handleScenePause }) => {
 
     return (
         <div style={{ height: "85vh", overflowY: "auto"}}>
@@ -21,7 +22,9 @@ export const Script: React.FC<ScriptProps> = ({ scriptToDisplay, currentLineInde
                     direction={line.direction ? line.direction : line.directions}
                     character={line.character}
                     line={line.line}
-                    audioBuffer={line.audioBuffer}/>
+                    audioBuffer={line.audioBuffer}
+                    addScenePauses={handleScenePause}
+                    />
             })}
         </div>
     )

@@ -96,8 +96,7 @@ export default function Home() {
         return false;
     }
 
-
-
+    // functions to handle state changes 
     const handleLoading = (loadingState: boolean) => {
         setIsLoading(loadingState);
     }
@@ -143,6 +142,10 @@ export default function Home() {
         setLoadingPercentage(percentage);
     }
 
+    const handleSecondsToPause = (index: number, numOfSeconds: number) => {
+        if (script) script.lines[index].pauseSeconds = numOfSeconds;
+    }
+
     return (
         <>  
             <h1 style={{ fontSize: '50px', marginBottom: '50px', display: hideUpload ? 'none' : 'block' }}>Ready Reader</h1>
@@ -185,6 +188,7 @@ export default function Home() {
                         scriptToDisplay={script.lines} 
                         currentLineIndex={indexOfCurrLine} 
                         startClicked={startClicked}
+                        handleScenePause={handleSecondsToPause}
                         /> 
                     <STT script={script.lines} 
                         userSelectedCharacter={selectedCharacter} 
