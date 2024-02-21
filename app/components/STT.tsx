@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ScriptLineObject } from './ScriptLine';
+import { Newsreader } from 'next/font/google';
 
 interface STTProps {
     script: ScriptLineObject[],
@@ -19,7 +20,12 @@ interface STTProps {
     TODO: 
         #1 - certain lines are being repeated and played in the middle of it being played
         the first time around, and lines are being skipped where the user is supposed to speak
-        -- WE NEED THIS TO BE 100% readable.. no mistkaes
+        -- WE NEED THIS TO BE 100% readable.. no mistakes
+		- lines are no longer being skipped [x]
+		- lines are not being replayed in the middle of the initial run [x]
+
+		[edge case] - there are still instances where the script loads WITHOUT audio objects appended..
+		we CANNOT have that happen
 
         #2 [x] - adding a toggle for scene directions to add pause inputs 
 
@@ -28,7 +34,10 @@ interface STTProps {
         #4 [x] - having the capability to switch the character that the user has selected (after the initial selection period)
 
         #5 [x] - fix the issue where loading bar goes over 100
+
+		#6 [] - fix the loading bar to actually mimic the loading api?
     
+		#7 [x] - the character selection tool should have the chosen character as default value 
  --------------------------------------------------------------------------- */
 
 export const STT: React.FC<STTProps> = ({ 
@@ -42,10 +51,28 @@ export const STT: React.FC<STTProps> = ({
     const fuzzball = require('fuzzball');
     const SpeechRecognition: any = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    let audioContext = new AudioContext();
-    let outputSource;
+	let newRecognition = new SpeechRecognition;
+
+    // let audioContext = new AudioContext();
+	/* 
+		Ensure that the audioContext is created only once when the component mounts. Currently, a new AudioContext is created every time the component renders, which might lead to unexpected behavior.
+		By using useMemo, you ensure that the audioContext is created only once when the component mounts.
+	*/
+	const audioContext = React.useMemo(() => new AudioContext(), []);
+	// let outputSource;
 
     let currIndex = 0;
+
+	// we need to keep track of when the script starts
+	// we need to keep track of whe n the user has selected reset
+
+	// these actions shouldn't re-render the whole component so we shouldn't use useState
+	// we load the script
+	// the user clicks start
+	// the script should move along as normal until the user selects "restart"
+		// this should STOP the script at the current moment
+		// and reset the STT to start from the beginning 
+
 
     const startRef = React.useRef(false);
     
@@ -53,11 +80,11 @@ export const STT: React.FC<STTProps> = ({
 
     // useRef is primarily used to access and manipulate the DOM or to store mutable values that don't trigger re-renders. 
     // because we don't want this to exactly re-render anything, we'll use ref
-    const shouldContinueRef = React.useRef(true);
+    // const shouldContinueRef = React.useRef(true);
 
-    console.log('start? ', startRef.current);
-    console.log('user clicked reset? ', resetRef.current);
-    console.log('shouldContinue value', shouldContinueRef.current);
+    // console.log('start? ', startRef.current);
+    // console.log('user clicked reset? ', resetRef.current);
+    // console.log('shouldContinue value', shouldContinueRef.current);
 
     // Start function will be invoked when the user clicks the button
     // it should essentially reset the whole script to be run as if for the first time
@@ -72,11 +99,14 @@ export const STT: React.FC<STTProps> = ({
         startRef.current = true;
         // if resetRef is set to true, then set it to false, otherwise don't touch
         resetRef.current ? resetRef.current = false : null;
-        shouldContinueRef.current = true;
+        // shouldContinueRef.current = true;
 
         // set a 3 second timeout before starting the script 
         setTimeout(() => {
-            startDialogue(0);
+            // startDialogue(0);
+			audioContext.resume().then(() => {
+				startDialogue(0);
+			});
         }, 3000);
     }
 
@@ -87,9 +117,22 @@ export const STT: React.FC<STTProps> = ({
         updateIndex(0);
         handleStartClick(false);
 
-        // startRef.current = true;
+		//  // Remove event listeners
+		//  newRecognition.onresult = null;
+		//  newRecognition.onend = null;
+
+		// if (newRecognition) {
+		// 	newRecognition.stop();
+		// }
+
+		// newRecognition = new SpeechRecognition();
+
+
+		// when the user clicks reset
+		// the start should be set to false
+		// reset should be set to true
         startRef.current = false;
-        shouldContinueRef.current = false;
+        // shouldContinueRef.current = false;
         resetRef.current = true;
     }
 
@@ -97,13 +140,20 @@ export const STT: React.FC<STTProps> = ({
 
         console.log('INSIDE start? ', startRef.current);
         console.log('INSIDE user clicked reset? ', resetRef.current);
-        console.log('INSIDE shouldContinue value', shouldContinueRef.current);
-        if (!shouldContinueRef.current) {
-            // if shouldContinue is false 
-            // we should return
-            console.log('play function should be stopped');
-            return;
-        } 
+        // console.log('INSIDE shouldContinue value', shouldContinueRef.current);
+        // if (!shouldContinueRef.current) {
+        //     // if shouldContinue is false 
+        //     // we should return
+        //     console.log('play function should be stopped');
+        //     return;
+        // } 
+
+		// if reset is ever true
+		// we should stop playing
+		if (resetRef.current) {
+			console.log('play function should be stopped');
+			return;
+		}
 
         currIndex = indexOfTheCurrentLine;
 
@@ -111,7 +161,7 @@ export const STT: React.FC<STTProps> = ({
         console.log('index: ', index);
         console.log('user selected character: ', userSelectedCharacter);
 
-        const newRecognition = new SpeechRecognition();
+        // const newRecognition = new SpeechRecognition();
         
         if (currIndex >= script.length) {
             console.log('reached end of script');
@@ -145,6 +195,12 @@ export const STT: React.FC<STTProps> = ({
             || userSelectedCharacter.includes(currentLine.character!)) {
 
                 console.log('entered user block');
+
+				// if reset is clicked, we want the recognition to instantly stop listening
+				// because the audio being played gets affected 
+
+				// TODO: when there are two lines in a row for the user to speak, it's causing an error where it's saying that it's already been started 
+
                 newRecognition.onresult = (e: any) => {
                     const transcript = e.results[0][0].transcript.toLowerCase().replace(/\s/g, '');
                     console.log('transcribed: ', transcript);
@@ -154,6 +210,7 @@ export const STT: React.FC<STTProps> = ({
 
                 newRecognition.onend = (e: any) => {
                     console.log('speech recognition ended');
+					newRecognition.stop();
                 }
 
                 newRecognition.continuous = true;
@@ -187,27 +244,39 @@ export const STT: React.FC<STTProps> = ({
     }   
 
     const playAudioBuffer = (audioBuffer: AudioBuffer) => {
-        outputSource = audioContext.createBufferSource();
+		console.log('hits');
+
+        const outputSource = audioContext.createBufferSource();
         outputSource.connect(audioContext.destination);
         outputSource.buffer = audioBuffer;
-        outputSource.start();
+
+        outputSource.addEventListener('ended', () => {
+            console.log('moby turn over');
+
+			outputSource.disconnect();
+
+            currIndex++;
+            updateIndex(currIndex);
+            startDialogue(currIndex);
+        }); 
+
+        outputSource.start(0);
+		// Instead of creating a new AudioBufferSourceNode for each playback, you can reuse the same one. This can be achieved by connecting and disconnecting the node appropriately.
+		// This ensures that a new AudioBufferSourceNode is created for each playback without creating a new context every time.
+		// outputSource.disconnect();
+
+		// the start function is just not playing 
 
         // TODO: need to be able to stop streaming the sound when the reset is clicked..
         // when reset is clicked, outputSource.stop();
 
+		// this doesn't stop the outputSource from playing 
         // if (resetRef.current) outputSource.stop();
 
         // outputSource.stop() SHOULD stop the audio even if it's midway 
         // according to documentation
         // HOWEVER, it won't recognize that the reset button has been clicked
 
-        outputSource.addEventListener('ended', () => {
-            console.log('moby turn over');
-
-            currIndex++;
-            updateIndex(currIndex);
-            startDialogue(currIndex);
-        }); 
     }
 
     // helper function to stream the audioBuffer object 
@@ -231,11 +300,11 @@ export const STT: React.FC<STTProps> = ({
         return;
     }
     
-    React.useEffect(() => {
-        if (resetRef.current) {
-            startRef.current = false;
-        }
-    }, [resetRef.current])
+    // React.useEffect(() => {
+    //     if (resetRef.current) {
+    //         startRef.current = false;
+    //     }
+    // }, [resetRef.current])
     
     return (
         <>

@@ -172,6 +172,8 @@ export default function Home() {
                 : <></>}
             {!isLoading && script && !selectedCharacter ? 
                 <ChooseCharacter 
+					userCharacter={selectedCharacter}
+					hasStarted={startClicked}
                     characters={listOfCharacters} 
                     setCharacter={handleCharacterChange} /> 
                 : <></>}
@@ -197,6 +199,8 @@ export default function Home() {
                         handleStartClick={handleClickStart}
                         />
                     <ChooseCharacter 
+						userCharacter={selectedCharacter}
+						hasStarted={startClicked}
                         characters={listOfCharacters} 
                         setCharacter={handleCharacterChange} /> 
                 </>
