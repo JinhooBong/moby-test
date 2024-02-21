@@ -101,6 +101,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             const parsedJSONScript = JSON.parse(gptParsedResponse.content);
             console.log('GPT response', parsedJSONScript);
 
+			// this should make sure that we're waiting for the audio objects to append before setting the script so i'm not sure what that edge case was.. 
             const audioSuccessfullyAttached = await attachAudioObjects(parsedJSONScript.lines);
 
             audioSuccessfullyAttached ? (setTheScript(parsedJSONScript), showScript(true)) : null;
@@ -134,7 +135,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
                             // console.log('decoded', decodedBuffer);
                             lineObj.audioBuffer = decodedBuffer;
                             // lineObj.audioBuffer = buffer;
-                        }) : null; // catch the error
+                        }) : (console.log('ERROR')); // catch the error
                     });
             }
         })
