@@ -57,6 +57,8 @@ export const STT: React.FC<STTProps> = ({
 	*/
 	const audioContext = React.useMemo(() => new AudioContext(), []);
 
+	const outputSourceRef = React.useRef<AudioBufferSourceNode>();
+
     let currIndex = 0;
 
     const startRef = React.useRef(false);
@@ -97,6 +99,7 @@ export const STT: React.FC<STTProps> = ({
         currIndex = 0;
         updateIndex(0);
         handleStartClick(false);
+		stopAudioSound();
 
 		// when the user clicks reset
 		// the start should be set to false
@@ -214,27 +217,21 @@ export const STT: React.FC<STTProps> = ({
         outputSource.addEventListener('ended', () => {
             console.log('moby turn over');
 
-			outputSource.disconnect();
-
             currIndex++;
             updateIndex(currIndex);
             startDialogue(currIndex);
         }); 
 
         outputSource.start(0);
-		// Instead of creating a new AudioBufferSourceNode for each playback, you can reuse the same one. This can be achieved by connecting and disconnecting the node appropriately.
-
-        // TODO: need to be able to stop streaming the sound when the reset is clicked..
-        // when reset is clicked, outputSource.stop();
-
-		// this doesn't stop the outputSource from playing 
-        // if (resetRef.current) outputSource.stop();
-
-        // outputSource.stop() SHOULD stop the audio even if it's midway 
-        // according to documentation
-        // HOWEVER, it won't recognize that the reset button has been clicked
-
+		outputSourceRef.current = outputSource;
     }
+
+	const stopAudioSound = () => {
+		if (outputSourceRef.current) {
+			outputSourceRef.current.stop();
+			outputSourceRef.current.disconnect();
+		}
+	}
 
     // helper function to stream the audioBuffer object 
     const playAudioSound = async (audioBuffer: AudioBuffer | undefined) => {
