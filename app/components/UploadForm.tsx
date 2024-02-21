@@ -2,8 +2,6 @@
 
 import React, { useState, FormEvent } from 'react';
 import { ScriptLineObject } from './ScriptLine';
-import { decode } from 'punycode';
-import { loadGetInitialProps } from 'next/dist/shared/lib/utils';
 
 interface UploadFormProps {
     setTheScript: Function,
@@ -13,8 +11,6 @@ interface UploadFormProps {
     isGPTLoading: Function,
     isTTSLoading: Function,
     isLoading: Function,
-    loadingPercentage: number,
-    updateLoading: Function
 }
 
 export const UploadForm: React.FC<UploadFormProps> = ({ 
@@ -25,13 +21,9 @@ export const UploadForm: React.FC<UploadFormProps> = ({
     isGPTLoading,
     isTTSLoading,
     isLoading,
-    loadingPercentage,
-    updateLoading
 }) => {
 
     const [file, setFile] = useState<File>();
-
-    let percentage = 0;
 
     const parseFileIntoPDF = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -57,8 +49,6 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             // pdfAPI returns a string 
             const pdfAPIResponse = textResponse.message;
             console.log('pdf response: ', pdfAPIResponse);
-            percentage += 30;
-            updateLoading(percentage);
 
             parseIntoJSON(pdfAPIResponse);
 
@@ -75,28 +65,16 @@ export const UploadForm: React.FC<UploadFormProps> = ({
         isGPTLoading(true);
         isTTSLoading(true);
 
-        // after 3 seconds, increase bar to 60
-        setTimeout(() => {
-            percentage += 30;
-            updateLoading(percentage);
-        }, 3000);
-
-        // after 10 seconds, increase bar to 100
-        setTimeout(() => {
-            setInterval(() => {
-                if (percentage < 100) {
-                    percentage += 5;
-                    updateLoading(percentage);
-                }
-            }, 2000);
-        }, 5000);
-
         try {
             const gptRes = await fetch('/api/parser', {
                 method: 'POST',
                 body: pdfToParse
             });
-    
+			
+			if (!gptRes.ok) {
+				throw new Error(`Failed to fetch: ${gptRes.status} - ${gptRes.statusText}`);
+			}
+
             const gptParsedResponse = await gptRes.json();
             const parsedJSONScript = JSON.parse(gptParsedResponse.content);
             console.log('GPT response', parsedJSONScript);
@@ -104,7 +82,10 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 			// this should make sure that we're waiting for the audio objects to append before setting the script so i'm not sure what that edge case was.. 
             const audioSuccessfullyAttached = await attachAudioObjects(parsedJSONScript.lines);
 
-            audioSuccessfullyAttached ? (setTheScript(parsedJSONScript), showScript(true)) : null;
+			if (audioSuccessfullyAttached) {
+				setTheScript(parsedJSONScript);
+				showScript(true);
+			}
             
             isTTSLoading(false);
             isLoading(false);
@@ -122,23 +103,46 @@ export const UploadForm: React.FC<UploadFormProps> = ({
         const audioContext = new AudioContext();
 
         // forEach is synchronous so until this operation is complete, it won't reach the return 
-        scriptLines.forEach((lineObj: ScriptLineObject) => {
-            if ((!lineObj.direction && !lineObj.directions) && lineObj.line) {
-                let lineToTranspose = lineObj.line.replace(/ *\([^)]*\) */g, "");
-                convertTextToSpeech(lineToTranspose)
-                    .then((buffer) => {
-                        // console.log('type buffer', typeof buffer);
-                        // const arrayBuffer = Buffer.from(buffer!);
-                        const arrayBuffer = new Uint8Array(buffer!).buffer;
-                        // console.log('array', typeof arrayBuffer);
-                        arrayBuffer ? audioContext.decodeAudioData(arrayBuffer, (decodedBuffer) => {
-                            // console.log('decoded', decodedBuffer);
-                            lineObj.audioBuffer = decodedBuffer;
-                            // lineObj.audioBuffer = buffer;
-                        }) : (console.log('ERROR')); // catch the error
-                    });
-            }
-        })
+		// however we are running into edge cases where the script does appear "ready" without the audio objects attached
+        // scriptLines.forEach((lineObj: ScriptLineObject) => {
+        //     if ((!lineObj.direction && !lineObj.directions) && lineObj.line) {
+        //         let lineToTranspose = lineObj.line.replace(/ *\([^)]*\) */g, "");
+        //         convertTextToSpeech(lineToTranspose)
+        //             .then(async (buffer) => {
+        //                 // console.log('type buffer', typeof buffer);
+        //                 // const arrayBuffer = Buffer.from(buffer!);
+        //                 const arrayBuffer = buffer ? new Uint8Array(buffer).buffer : null;
+        //                 // console.log('array', typeof arrayBuffer);
+        //                 arrayBuffer ? await audioContext.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+        //                     // console.log('decoded', decodedBuffer);
+        //                     lineObj.audioBuffer = decodedBuffer;
+        //                     // lineObj.audioBuffer = buffer;
+        //                 }) : (console.log('ERROR')); // catch the error
+        //             });
+		// 		}
+		// 	});
+
+		// gpt generated code --------------------------------------------------------
+		// Use Promise.all to wait for all asynchronous operations to complete
+		await Promise.all(scriptLines.map(async (lineObj: ScriptLineObject) => {
+			if ((!lineObj.direction && !lineObj.directions) && lineObj.line) {
+				let lineToTranspose = lineObj.line.replace(/ *\([^)]*\) */g, "");
+				try {
+					const buffer = await convertTextToSpeech(lineToTranspose);
+					const arrayBuffer = buffer ? new Uint8Array(buffer).buffer : null;
+	
+					if (arrayBuffer) {
+						await audioContext.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+							lineObj.audioBuffer = decodedBuffer;
+						});
+					} else {
+						console.log('ERROR'); // handle the error
+					}
+				} catch (error) {
+					console.error('Error converting text to speech:', error);
+				}
+			}
+		}));
 
         return true;
     }

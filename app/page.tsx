@@ -27,8 +27,6 @@ export default function Home() {
     const [gptLoading, setGPTLoading] = React.useState<boolean | undefined>(false);
     const [ttsLoading, setTTSLoading] = React.useState<boolean | undefined>(false);
 
-    const [loadingPercentage, setLoadingPercentage] = React.useState(0);
-
     // action state variables
     const [hideUpload, setHideUpload] = React.useState<boolean>(false);
     const [startClicked, setStartClicked] = React.useState<boolean>(false);
@@ -135,13 +133,6 @@ export default function Home() {
         setIsCounting(true);
     }
 
-    const handleLoadingPercent = (percentage: number) => {
-        if (percentage > 100) {
-            setLoadingPercentage(100);
-        }
-        setLoadingPercentage(percentage);
-    }
-
     const handleSecondsToPause = (index: number, numOfSeconds: number) => {
         if (script) script.lines[index].pauseSeconds = numOfSeconds;
     }
@@ -158,8 +149,6 @@ export default function Home() {
                     isPDFLoading={handlePDFLoading}
                     isGPTLoading={handleGPTLoading}
                     isTTSLoading={handleTTSLoading}
-                    loadingPercentage={loadingPercentage}
-                    updateLoading={handleLoadingPercent}
                 />
             </div>
             {parsePDFLoading || gptLoading || ttsLoading ? 
@@ -167,7 +156,6 @@ export default function Home() {
                     parseLoading={parsePDFLoading} 
                     gptLoading={gptLoading} 
                     ttsLoading={ttsLoading}
-                    progress={loadingPercentage}
                 /> 
                 : <></>}
             {!isLoading && script && !selectedCharacter ? 
