@@ -58,6 +58,7 @@ export const STT: React.FC<STTProps> = ({
 	const audioContext = React.useMemo(() => new AudioContext(), []);
 
 	const outputSourceRef = React.useRef<AudioBufferSourceNode>();
+	const speechRecognitionRef = React.useRef<SpeechRecognition>();
 
     let currIndex = 0;
 
@@ -99,7 +100,10 @@ export const STT: React.FC<STTProps> = ({
         currIndex = 0;
         updateIndex(0);
         handleStartClick(false);
+		
+		// stop the audio and / or speech recognition upon reset
 		stopAudioSound();
+		stopSpeechRecognition();
 
 		// when the user clicks reset
 		// the start should be set to false
@@ -179,6 +183,8 @@ export const STT: React.FC<STTProps> = ({
                 newRecognition.continuous = true;
                 newRecognition.start();
 
+				speechRecognitionRef.current = newRecognition;
+
                 console.log('listening...');
                 return;
         } else {
@@ -187,6 +193,12 @@ export const STT: React.FC<STTProps> = ({
             return;
         }
     }
+
+	const stopSpeechRecognition = () => {
+		if (speechRecognitionRef.current) {
+			speechRecognitionRef.current.stop();
+		}
+	}
 
     const checkInputAgainstScript = (transcribed: string) => {
 
