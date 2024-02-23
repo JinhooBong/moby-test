@@ -108,6 +108,10 @@ export const STT: React.FC<STTProps> = ({
 		// when the user clicks reset
 		// the start should be set to false
 		// reset should be set to true
+
+		// i feel like these are not being set correctly?
+		// causing some lagging issues
+
         startRef.current = false;
         resetRef.current = true;
     }
@@ -212,7 +216,7 @@ export const STT: React.FC<STTProps> = ({
         } else {
             console.log('try again');
             // TODO: some form of try again alert 
-			alert("try again");
+			// alert("try again");
             startDialogue(currIndex);
         }
 
@@ -267,12 +271,12 @@ export const STT: React.FC<STTProps> = ({
     }
     
     return (
-        <>
+        <div style={{ margin: "10px auto" }}>
             <button 
-                style={{ border: '1px solid white'}} 
+                style={{ border: '1px solid white', padding: "10px 25px", borderRadius: "5px" }} 
                 onClick={() => startRef.current ? reset() : startFunction()}>
-                {startRef.current ? "Reset" : "Start"}
+                {startRef.current ? "RESET" : "START"}
             </button>
-        </>
+        </div>
     )
 };

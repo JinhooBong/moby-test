@@ -12,7 +12,7 @@ export interface ScriptProps {
 export const Script: React.FC<ScriptProps> = ({ scriptToDisplay, currentLineIndex, startClicked, handleScenePause }) => {
 
     return (
-        <div style={{ height: "85vh", overflowY: "auto"}}>
+        <div style={{ height: "85vh", overflowY: "auto", width: "70vw", maxWidth: "800px" }}>
             {scriptToDisplay.map((line, id) => {
                 return <ScriptLine 
                     key={id}
