@@ -1,6 +1,7 @@
 'use client'
 
 import { ScriptLine, ScriptLineObject } from './ScriptLine';
+import React from "react";
 
 export interface ScriptProps {
     scriptToDisplay: ScriptLineObject[],
@@ -9,7 +10,14 @@ export interface ScriptProps {
     handleScenePause: Function
 }
 
-export const Script: React.FC<ScriptProps> = ({ scriptToDisplay, currentLineIndex, startClicked, handleScenePause }) => {
+export const Script: React.FC<ScriptProps> = ({ 
+	scriptToDisplay, 
+	currentLineIndex, 
+	startClicked,
+	handleScenePause 
+}) => {
+
+	const containerRef = React.useRef<HTMLDivElement>(null);
 
     return (
         <div style={{ height: "85vh", overflowY: "auto", width: "70vw", maxWidth: "800px" }}>

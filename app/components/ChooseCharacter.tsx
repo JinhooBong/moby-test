@@ -24,17 +24,29 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({
 
     const [selectedCharacter, setSelectedCharacter] = React.useState(characters && characters.length > 0 ? characters[0] : '');
 
+	const [showSelector, setShowSelector] = React.useState<boolean>(false);
+
 	React.useEffect(() => {
 		if (characters && characters.length > 0) {
 			setSelectedCharacter(characters[0]);
 		}
 	}, [characters]);
 
-    const handleChange = (e: any) => {
+    const handleInitialChange = (e: any) => {
         console.log('e', e.target.value);
         console.log('selected', selectedCharacter);
         setSelectedCharacter(e.target.value as string);
     };
+
+	const handleShowChange = () => {
+		setShowSelector(!showSelector);
+	};
+
+	const handlePostChange = (e: any) => {
+		setSelectedCharacter(e.target.value as string);
+		setCharacter(e.target.value);
+		setShowSelector(!showSelector);
+	}
 
     const selectCharacter = (e: any) => {
         e.preventDefault();
@@ -43,21 +55,33 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({
     }
 
     return (
-        <>
-            <form onSubmit={(e) => selectCharacter(e)}>
-                <label>
-					<p>{hasStarted ? "Re-select / change character name: " : "Please select who you're reading for: " }</p>
-                    <br />
-                    <select value={selectedCharacter} onChange={(e) => handleChange(e)} style={{ color: "black", margin: "20px", padding: "0 20px", textAlign: "center" }}>
-                        {characters.map((character, id) => {
-                            return <option key={id} value={character}>{character}</option>
-                        })}
-                    </select>
-                </label>
-                <br />
-                <input type="submit" value="Submit" style={{ border: "1px solid white", padding: "0 10px", borderRadius: "5px" }}/>
-            </form>
-
-        </>
+		<>
+			{userCharacter ? 
+				<div style={{ position: "fixed", zIndex: "1", top: "0", left: "0", padding: "20px", border: "1px solid white" }}>
+					<p>{"You are currently reading as : "}</p>
+					<p className="scriptFont">{userCharacter}</p>
+					<button onClick={() => handleShowChange()}>{"Click to change"}</button>
+					<select value={userCharacter} onChange={(e) => handlePostChange(e)} style={{ color: "black", margin: "20px", padding: "0 20px", textAlign: "center", display: showSelector ? "block" : "none" }}>
+						{characters.map((character, id) => {
+							return <option key={id} value={character}>{character}</option>
+						})}
+					</select>
+				</div> 	
+			: <>
+				<form onSubmit={(e) => selectCharacter(e)}>
+					<label>
+						<p>{"Please select who you're reading for: "}</p>
+						<br />
+						<select value={selectedCharacter} onChange={(e) => handleInitialChange(e)} style={{ color: "black", margin: "20px", padding: "0 20px", textAlign: "center" }}>
+							{characters.map((character, id) => {
+								return <option key={id} value={character}>{character}</option>
+							})}
+						</select>
+					</label>
+					<br />
+					<input type="submit" value="Submit" style={{ border: "1px solid white", padding: "0 10px", borderRadius: "5px" }}/>
+				</form>
+        	</>}
+		</>
     ) 
 }
