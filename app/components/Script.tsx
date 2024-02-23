@@ -19,8 +19,21 @@ export const Script: React.FC<ScriptProps> = ({
 
 	const containerRef = React.useRef<HTMLDivElement>(null);
 
+	React.useEffect(() => {
+		// Scroll to the currently read line when it changes
+		if (containerRef.current) {
+		  const lineElement = containerRef.current.children[currentLineIndex];
+		  if (lineElement) {
+			lineElement.scrollIntoView({
+			  behavior: 'smooth',
+			  block: 'center',
+			});
+		  }
+		}
+	  }, [currentLineIndex]);
+
     return (
-        <div style={{ height: "85vh", overflowY: "auto", width: "70vw", maxWidth: "800px" }}>
+        <div ref={containerRef} style={{ height: "85vh", overflowY: "auto", width: "70vw", maxWidth: "800px" }}>
             {scriptToDisplay.map((line, id) => {
                 return <ScriptLine 
                     key={id}
