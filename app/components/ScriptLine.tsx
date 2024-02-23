@@ -35,7 +35,7 @@ export const ScriptLine: React.FC<ScriptLineObject> = (
 
         if (direction) {
             return (
-                <div style={{ minWidth: "650px", margin: "auto", display: "flex", justifyContent: "space-evenly" }}>
+                <div style={{ minWidth: "650px", margin: "20px auto", display: "flex", justifyContent: "space-evenly" }}>
                     <p className="scriptFont" style={{ width: "75%", textAlign: "left" }}>{direction}</p>
 					<div style={{ width: "25%" }}>
 						<p>Add a pause?: 

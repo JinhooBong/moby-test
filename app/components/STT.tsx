@@ -17,27 +17,6 @@ interface STTProps {
     CERTAIN SCRIPTS - will not be able to read the last couple lines because of 
     TTS API limitations. Should be solved if we upgrade to paid tier 
 
-    TODO: 
-        #1 - certain lines are being repeated and played in the middle of it being played
-        the first time around, and lines are being skipped where the user is supposed to speak
-        -- WE NEED THIS TO BE 100% readable.. no mistakes
-		- lines are no longer being skipped [x]
-		- lines are not being replayed in the middle of the initial run [x]
-
-		[edge case] - there are still instances where the script loads WITHOUT audio objects appended..
-		we CANNOT have that happen
-
-        #2 [x] - adding a toggle for scene directions to add pause inputs 
-
-        #3 [x] - add a delay in the beginning when the user clicks "start", maybe showing a countdown of some sorts 
-
-        #4 [x] - having the capability to switch the character that the user has selected (after the initial selection period)
-
-        #5 [x] - fix the issue where loading bar goes over 100
-
-		#6 [] - fix the loading bar to actually mimic the loading api?
-    
-		#7 [x] - the character selection tool should have the chosen character as default value 
  --------------------------------------------------------------------------- */
 
 export const STT: React.FC<STTProps> = ({ 
@@ -109,21 +88,18 @@ export const STT: React.FC<STTProps> = ({
 		// the start should be set to false
 		// reset should be set to true
 
-		// i feel like these are not being set correctly?
-		// causing some lagging issues
-
         startRef.current = false;
         resetRef.current = true;
     }
 
     const startDialogue = ( indexOfTheCurrentLine: number ) => {
 
-        console.log('INSIDE start? ', startRef.current);
-        console.log('INSIDE user clicked reset? ', resetRef.current);
+        // console.log('INSIDE start? ', startRef.current);
+        // console.log('INSIDE user clicked reset? ', resetRef.current);
 
 		// if reset is ever true, we should stop playing
 		if (resetRef.current) {
-			console.log('play function should be stopped');
+			console.log('application should stop');
 			return;
 		}
 
@@ -137,9 +113,10 @@ export const STT: React.FC<STTProps> = ({
         
         if (currIndex >= script.length) {
             console.log('reached end of script');
-            const endRecognition = new SpeechRecognition();
-            endRecognition.start();
-            endRecognition.stop();
+
+			stopSpeechRecognition();
+			stopAudioSound();
+
             return;
         }
 
@@ -167,10 +144,8 @@ export const STT: React.FC<STTProps> = ({
             || userSelectedCharacter.includes(currentLine.character!)) {
 
                 console.log('entered user block');
-
-				// if reset is clicked, we want the recognition to instantly stop listening
-				// because the audio being played gets affected 
-				// ^ this seems like an edge case... sometimes it affects the headphone audio, sometimes it doesn't
+				// in the case that we enter the speech recognition block, we make sure that any audio sound is turned off 
+				stopAudioSound();
 
                 newRecognition.onresult = (e: any) => {
                     const transcript = e.results[0][0].transcript.toLowerCase().replace(/\s/g, '');
@@ -193,6 +168,9 @@ export const STT: React.FC<STTProps> = ({
                 return;
         } else {
             console.log('entered moby block');
+
+			// in the case that we enter Moby block, we want to stop any speech recognition
+			stopSpeechRecognition();
             playAudioSound(currentLine.audioBuffer);
             return;
         }
@@ -215,9 +193,31 @@ export const STT: React.FC<STTProps> = ({
             startDialogue(currIndex);
         } else {
             console.log('try again');
-            // TODO: some form of try again alert 
-			// alert("try again");
-            startDialogue(currIndex);
+			
+			stopSpeechRecognition(); // Stop recognition on mismatch
+			stopAudioSound(); // stop any audio from playing 
+
+			// TODO: some kind of try again alert
+			const newRecognition = new SpeechRecognition();
+
+			newRecognition.onresult = (e: any) => {
+				const transcript = e.results[0][0].transcript.toLowerCase().replace(/\s/g, '');
+				console.log('transcribed: ', transcript);
+
+				checkInputAgainstScript(transcript);
+			}
+
+			newRecognition.onend = (e: any) => {
+				console.log('speech recognition ended');
+				newRecognition.stop();
+			}
+
+			newRecognition.continuous = true;
+			newRecognition.start();
+
+			speechRecognitionRef.current = newRecognition;
+
+			return;
         }
 
         return;
