@@ -5,10 +5,12 @@ import React from "react";
 
 export interface ScriptProps {
     scriptToDisplay: ScriptLineObject[],
-    currentLineIndex: number,
+    // currentLineIndex: number,
+	currentLineIndex: React.MutableRefObject<number>,
     startClicked: boolean,
     handleScenePause: Function,
-	handleCurrentLine: Function
+	// handleCurrentLine: Function
+	resetButton: React.MutableRefObject<boolean>;
 }
 
 export const Script: React.FC<ScriptProps> = ({ 
@@ -16,7 +18,8 @@ export const Script: React.FC<ScriptProps> = ({
 	currentLineIndex, 
 	startClicked,
 	handleScenePause,
-	handleCurrentLine
+	resetButton
+	// handleCurrentLine
 }) => {
 
 	const containerRef = React.useRef<HTMLDivElement>(null);
@@ -24,7 +27,7 @@ export const Script: React.FC<ScriptProps> = ({
 	React.useEffect(() => {
 		// Scroll to the currently read line when it changes
 		if (containerRef.current) {
-		  const lineElement = containerRef.current.children[currentLineIndex];
+		  const lineElement = containerRef.current.children[currentLineIndex.current];
 		  if (lineElement) {
 			lineElement.scrollIntoView({
 			  behavior: 'smooth',
@@ -35,7 +38,7 @@ export const Script: React.FC<ScriptProps> = ({
 	  }, [currentLineIndex]);
 
     return (
-        <div ref={containerRef} style={{ height: "85vh", overflowY: "auto", width: "70vw", maxWidth: "800px" }}>
+        <div ref={containerRef} style={{ height: "85vh", overflowY: "auto", width: "70vw", maxWidth: "800px", backgroundColor: "#FAF9F6", padding: "20px 50px", boxShadow: "10px 10px 10px 1px rgba(0, 0, 0, .2)" }}>
             {scriptToDisplay.map((line, id) => {
                 return <ScriptLine 
                     key={id}
@@ -47,7 +50,8 @@ export const Script: React.FC<ScriptProps> = ({
                     line={line.line}
                     audioBuffer={line.audioBuffer}
                     addScenePauses={handleScenePause}
-					handleCurrentLine={handleCurrentLine}
+					resetButton={resetButton}
+					// handleCurrentLine={handleCurrentLine}
                     />
             })}
         </div>

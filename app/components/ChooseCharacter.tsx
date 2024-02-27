@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@mui/material/Button';
 
 interface ChooseCharacterProps {
     characters: string[],
@@ -57,10 +58,10 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({
     return (
 		<>
 			{userCharacter ? 
-				<div style={{ position: "fixed", zIndex: "1", top: "0", left: "0", padding: "20px", border: "1px solid white" }}>
+				<div style={{ position: "fixed", zIndex: "1", top: "0", left: "0", padding: "20px", border: "1px solid white", background: "rgba(137, 169, 154, 0.7)" }}>
 					<p>{"You are currently reading as : "}</p>
 					<p className="scriptFont">{userCharacter}</p>
-					<button onClick={() => handleShowChange()}>{"Click to change"}</button>
+					<Button style={{ color: "#007562" }} variant="text" onClick={() => handleShowChange()}>Click to change</Button>
 					<select value={userCharacter} onChange={(e) => handlePostChange(e)} style={{ color: "black", margin: "20px", padding: "0 20px", textAlign: "center", display: showSelector ? "block" : "none" }}>
 						{characters.map((character, id) => {
 							return <option key={id} value={character}>{character}</option>
@@ -68,18 +69,17 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({
 					</select>
 				</div> 	
 			: <>
-				<form onSubmit={(e) => selectCharacter(e)}>
+				<form onSubmit={(e) => selectCharacter(e)} style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
 					<label>
-						<p>{"Please select who you're reading for: "}</p>
-						<br />
-						<select value={selectedCharacter} onChange={(e) => handleInitialChange(e)} style={{ color: "black", margin: "20px", padding: "0 20px", textAlign: "center" }}>
+						<p style={{ fontSize: "20px" }}>{"Please select who you're reading for: "}</p>
+						<select value={selectedCharacter} onChange={(e) => handleInitialChange(e)} style={{ color: "black", margin: "20px", padding: "10px 50px", fontSize: "20px", textAlign: "center", border: "none" }}>
 							{characters.map((character, id) => {
 								return <option key={id} value={character}>{character}</option>
 							})}
 						</select>
 					</label>
 					<br />
-					<input type="submit" value="Submit" style={{ border: "1px solid white", padding: "0 10px", borderRadius: "5px" }}/>
+					<input type="submit" value="Submit" style={{ border: "none", padding: "10px 30px", borderRadius: "5px", width: "150px" }}/>
 				</form>
         	</>}
 		</>

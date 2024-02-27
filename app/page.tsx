@@ -17,7 +17,10 @@ export default function Home() {
     // user dependent state variables
     const [script, setScript] = React.useState<ScriptObject>();
     const [showScript, setShowScript] = React.useState<boolean | undefined>(false);
-    const [indexOfCurrLine, setIndexOfCurrLine] = React.useState<number>(0);
+    // const [indexOfCurrLine, setIndexOfCurrLine] = React.useState<number>(0);
+	const indexOfCurrLineRef = React.useRef(0);
+	const resetButtonRef = React.useRef(false);
+
     const [listOfCharacters, setListOfCharacters] = React.useState<string[]>([]);
     const [selectedCharacter, setSelectedCharacter] = React.useState<string | undefined>("");
 
@@ -123,9 +126,9 @@ export default function Home() {
         setSelectedCharacter(character);
     }    
 
-    const handleIndexUpdate = (index: number) => {
-        setIndexOfCurrLine(index);
-    }
+    // const handleIndexUpdate = (index: number) => {
+    //     setIndexOfCurrLine(index);
+    // }
 
     const handleClickStart = (click: boolean) => {
         setStartClicked(click);
@@ -138,8 +141,8 @@ export default function Home() {
     }
 
     return (
-        <>  
-            <h1 style={{ fontSize: '50px', marginBottom: '50px', display: hideUpload ? 'none' : 'block' }}>Ready Reader</h1>
+        <div className="mainPage">  
+            <h1 style={{ fontSize: '50px', marginBottom: "50px", display: hideUpload ? 'none' : 'block' }}>Ready Reader</h1>
             <div style={{ display: hideUpload ? 'none' : 'block' }}>
                 <UploadForm
                     setTheScript={setScript} 
@@ -176,16 +179,20 @@ export default function Home() {
                     : <></>}
                     <Script 
                         scriptToDisplay={script.lines} 
-                        currentLineIndex={indexOfCurrLine} 
+                        // currentLineIndex={indexOfCurrLine} 
+						currentLineIndex={indexOfCurrLineRef}
                         startClicked={startClicked}
                         handleScenePause={handleSecondsToPause}
-						handleCurrentLine={handleIndexUpdate}
+						resetButton={resetButtonRef}
+						// handleCurrentLine={handleIndexUpdate}
                         /> 
                     <STT script={script.lines} 
                         userSelectedCharacter={selectedCharacter} 
-                        currLineIndex={indexOfCurrLine} 
-                        updateIndex={handleIndexUpdate}
+                        // currLineIndex={indexOfCurrLine} 
+						currLineIndex={indexOfCurrLineRef}
+                        // updateIndex={handleIndexUpdate}
                         handleStartClick={handleClickStart}
+						resetState={resetButtonRef}
                         />
                     <ChooseCharacter 
 						userCharacter={selectedCharacter}
@@ -194,7 +201,7 @@ export default function Home() {
                         setCharacter={handleCharacterChange} /> 
                 </>
                 : <></>}
-        </>
+        </div>
     )
 
 }

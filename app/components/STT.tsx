@@ -2,14 +2,15 @@
 
 import React from 'react';
 import { ScriptLineObject } from './ScriptLine';
-import { Newsreader } from 'next/font/google';
 
 interface STTProps {
     script: ScriptLineObject[],
     userSelectedCharacter: string,
-    currLineIndex: number,
-    updateIndex: Function,
-    handleStartClick: Function
+    // currLineIndex: number,
+	currLineIndex: React.MutableRefObject<number>,
+    // updateIndex: Function,
+    handleStartClick: Function,
+	resetState: React.MutableRefObject<boolean>
 }
 
 /* --------------------------------------------------------------------------- 
@@ -17,14 +18,23 @@ interface STTProps {
     CERTAIN SCRIPTS - will not be able to read the last couple lines because of 
     TTS API limitations. Should be solved if we upgrade to paid tier 
 
+	changing the current line index SHOULD NOT incur a re-render
+	thus we should use a REF
+
+	each script line should have access to change the ref value to the index of the line
+	however, once reset has been clicked, we should reset that value to 0 and not have the script line be able to mutate it - this is the problem here however, since these two actions are a bit clashing?
+
+	
+
  --------------------------------------------------------------------------- */
 
 export const STT: React.FC<STTProps> = ({ 
     script, 
     userSelectedCharacter, 
     currLineIndex, 
-    updateIndex, 
-    handleStartClick 
+    // updateIndex, 
+    handleStartClick,
+	resetState
 }) => {
 
     const fuzzball = require('fuzzball');
@@ -58,11 +68,15 @@ export const STT: React.FC<STTProps> = ({
         // this points to the parent component to alert the highlighting to start
         handleStartClick(true);
 
+		
+
 		// if currLineIndex, then don't change it to 0
-		currLineIndex === 0 ? updateIndex(0) : null;
+		// currLineIndex.current === 0 ? updateIndex(0) : null;
         // updateIndex(0);
     
         startRef.current = true;
+		resetState.current = false;
+		// resetState.current ? resetState.current = false : null;
         // if resetRef is set to true, then set it to false, otherwise don't touch
         resetRef.current ? resetRef.current = false : null;
 
@@ -70,7 +84,7 @@ export const STT: React.FC<STTProps> = ({
         setTimeout(() => {
 			audioContext.resume().then(() => {
 				// if currLineIndex has a value other than 0 then start from there
-				currLineIndex !== 0 ? startDialogue(currLineIndex) : startDialogue(0);
+				currLineIndex.current !== 0 ? startDialogue(currLineIndex.current) : startDialogue(0);
 				// startDialogue(0);
 			});
         }, 3000);
@@ -82,7 +96,10 @@ export const STT: React.FC<STTProps> = ({
 
         currIndex = 0;
 		// when we click reset, do we want to reset the index to 0? or just clear it 
-        updateIndex(0);
+        // updateIndex(0);
+		currLineIndex.current = 0;
+		console.log('CURRENTLINEINDE SHOULD BE 0', currLineIndex.current);
+		resetState.current = true;
         handleStartClick(false);
 		
 		// stop the audio and / or speech recognition upon reset
@@ -141,7 +158,8 @@ export const STT: React.FC<STTProps> = ({
 
             setTimeout(() => {
                 currIndex++;
-                updateIndex(currIndex);
+                // updateIndex(currIndex);
+				currLineIndex.current = currIndex;
                 startDialogue(currIndex);
                 return;
             }, secondsToPause);
@@ -195,7 +213,8 @@ export const STT: React.FC<STTProps> = ({
         const score = fuzzball.ratio(transcribed, scriptLineWithoutParenthesis);
         if (score > 70) {
             currIndex++;
-            updateIndex(currIndex);
+            // updateIndex(currIndex);
+			currLineIndex.current = currIndex;
             startDialogue(currIndex);
         } else {
             console.log('try again');
@@ -240,7 +259,8 @@ export const STT: React.FC<STTProps> = ({
             console.log('moby turn over');
 
             currIndex++;
-            updateIndex(currIndex);
+            // updateIndex(currIndex);
+			currLineIndex.current = currIndex;
             startDialogue(currIndex);
         }); 
 
