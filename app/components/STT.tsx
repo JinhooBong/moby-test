@@ -7,7 +7,7 @@ import { Newsreader } from 'next/font/google';
 interface STTProps {
     script: ScriptLineObject[],
     userSelectedCharacter: string,
-    index: number,
+    currLineIndex: number,
     updateIndex: Function,
     handleStartClick: Function
 }
@@ -22,7 +22,7 @@ interface STTProps {
 export const STT: React.FC<STTProps> = ({ 
     script, 
     userSelectedCharacter, 
-    index, 
+    currLineIndex, 
     updateIndex, 
     handleStartClick 
 }) => {
@@ -58,7 +58,9 @@ export const STT: React.FC<STTProps> = ({
         // this points to the parent component to alert the highlighting to start
         handleStartClick(true);
 
-        updateIndex(0);
+		// if currLineIndex, then don't change it to 0
+		currLineIndex === 0 ? updateIndex(0) : null;
+        // updateIndex(0);
     
         startRef.current = true;
         // if resetRef is set to true, then set it to false, otherwise don't touch
@@ -67,7 +69,9 @@ export const STT: React.FC<STTProps> = ({
         // set a 3 second timeout before starting the script 
         setTimeout(() => {
 			audioContext.resume().then(() => {
-				startDialogue(0);
+				// if currLineIndex has a value other than 0 then start from there
+				currLineIndex !== 0 ? startDialogue(currLineIndex) : startDialogue(0);
+				// startDialogue(0);
 			});
         }, 3000);
     }
@@ -77,6 +81,7 @@ export const STT: React.FC<STTProps> = ({
         console.log('reset called');
 
         currIndex = 0;
+		// when we click reset, do we want to reset the index to 0? or just clear it 
         updateIndex(0);
         handleStartClick(false);
 		
@@ -93,6 +98,7 @@ export const STT: React.FC<STTProps> = ({
     }
 
     const startDialogue = ( indexOfTheCurrentLine: number ) => {
+		// the idea is that the indexOfTheCurrentLine will allow for the user to start from that specific line 
 
         // console.log('INSIDE start? ', startRef.current);
         // console.log('INSIDE user clicked reset? ', resetRef.current);
@@ -106,7 +112,7 @@ export const STT: React.FC<STTProps> = ({
         currIndex = indexOfTheCurrentLine;
 
         console.log('current index: ', currIndex);
-        console.log('index: ', index);
+        console.log('index: ', currLineIndex);
         console.log('user selected character: ', userSelectedCharacter);
 
         const newRecognition = new SpeechRecognition();

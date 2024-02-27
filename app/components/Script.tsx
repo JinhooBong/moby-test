@@ -7,14 +7,16 @@ export interface ScriptProps {
     scriptToDisplay: ScriptLineObject[],
     currentLineIndex: number,
     startClicked: boolean,
-    handleScenePause: Function
+    handleScenePause: Function,
+	handleCurrentLine: Function
 }
 
 export const Script: React.FC<ScriptProps> = ({ 
 	scriptToDisplay, 
 	currentLineIndex, 
 	startClicked,
-	handleScenePause 
+	handleScenePause,
+	handleCurrentLine
 }) => {
 
 	const containerRef = React.useRef<HTMLDivElement>(null);
@@ -45,6 +47,7 @@ export const Script: React.FC<ScriptProps> = ({
                     line={line.line}
                     audioBuffer={line.audioBuffer}
                     addScenePauses={handleScenePause}
+					handleCurrentLine={handleCurrentLine}
                     />
             })}
         </div>

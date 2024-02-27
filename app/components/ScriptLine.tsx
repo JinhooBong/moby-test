@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface ScriptLineObject {
-    index?: number, 
+    index: number, 
     direction?: string,
     directions?: string,
     pauseSeconds?: number, 
@@ -10,11 +10,22 @@ export interface ScriptLineObject {
     audioBuffer?: AudioBuffer | undefined,
     currLineIndex?: number,
     startClicked?: boolean,
-    addScenePauses: Function
+    addScenePauses: Function,
+	handleCurrentLine: Function
 }
 
-export const ScriptLine: React.FC<ScriptLineObject> = (
-    { index, direction, character, line, audioBuffer, currLineIndex, startClicked, pauseSeconds, addScenePauses }) => {
+export const ScriptLine: React.FC<ScriptLineObject> = ({ 
+	index, 
+	direction, 
+	character, 
+	line, 
+	audioBuffer, 
+	currLineIndex, 
+	startClicked, 
+	pauseSeconds, 
+	addScenePauses,
+	handleCurrentLine 
+}) => {
 
         const [showPause, setShowPause] = React.useState(false);
 
@@ -33,6 +44,16 @@ export const ScriptLine: React.FC<ScriptLineObject> = (
             }
         }  
 
+		const handleLineStart = (lineIndex: number) => {
+			console.log('index clicked', lineIndex);
+			// this handleCurrentLine will update in Page.tsx
+			// indexOfCurrLine to the clicked index
+			// in this component, it will only be used to determine which line to highlight.
+			handleCurrentLine(lineIndex);
+		}
+
+		// each script line will need a click function that updates the current line that the index is on
+		console.log(' current line index?: ', currLineIndex);
         if (direction) {
             return (
                 <div style={{ minWidth: "650px", margin: "20px auto", display: "flex", justifyContent: "space-evenly" }}>
@@ -56,11 +77,12 @@ export const ScriptLine: React.FC<ScriptLineObject> = (
         } else {
             return (
                 index === currLineIndex ? 
-                <div style={{width: "300px", textAlign: "left", margin: "auto"}}>
+                <div style={{width: "300px", textAlign: "left", margin: "auto"}} onClick={() => handleLineStart(index)}>
                     <h3 className="scriptFont" style={{ marginBottom: "2px", textAlign: "center" }}>{character?.toLocaleUpperCase()}</h3>
-                    <p className="scriptFont" style={{ backgroundColor: startClicked ? "rgba(222, 244, 64, 0.7)" : "transparent", marginBottom: "5px" }}>{line}</p>
+                    {/* <p className="scriptFont" style={{ backgroundColor: startClicked ? "rgba(222, 244, 64, 0.7)" : "transparent", marginBottom: "5px" }}>{line}</p> */}
+					<p className="scriptFont" style={{ backgroundColor: "rgba(222, 244, 64, 0.7)", marginBottom: "5px" }}>{line}</p>
                 </div>
-                : <div style={{width: "300px", textAlign: "left", margin: "auto"}}>
+                : <div style={{width: "300px", textAlign: "left", margin: "auto"}} onClick={() => handleLineStart(index)}>
                     <h3 className="scriptFont" style={{ marginBottom: "2px", textAlign: "center" }}>{character?.toLocaleUpperCase()}</h3>
                     <p className="scriptFont" style={{ marginBottom: "5px" }}>{line}</p>
                 </div>

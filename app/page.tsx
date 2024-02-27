@@ -179,10 +179,11 @@ export default function Home() {
                         currentLineIndex={indexOfCurrLine} 
                         startClicked={startClicked}
                         handleScenePause={handleSecondsToPause}
+						handleCurrentLine={handleIndexUpdate}
                         /> 
                     <STT script={script.lines} 
                         userSelectedCharacter={selectedCharacter} 
-                        index={indexOfCurrLine} 
+                        currLineIndex={indexOfCurrLine} 
                         updateIndex={handleIndexUpdate}
                         handleStartClick={handleClickStart}
                         />
