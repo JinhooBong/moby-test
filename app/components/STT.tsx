@@ -10,7 +10,8 @@ interface STTProps {
 	currLineIndex: React.MutableRefObject<number>,
     // updateIndex: Function,
     handleStartClick: Function,
-	resetState: React.MutableRefObject<boolean>
+	resetState: React.MutableRefObject<boolean>,
+	startFromDiffLine: React.MutableRefObject<boolean>
 }
 
 /* --------------------------------------------------------------------------- 
@@ -24,7 +25,7 @@ interface STTProps {
 	each script line should have access to change the ref value to the index of the line
 	however, once reset has been clicked, we should reset that value to 0 and not have the script line be able to mutate it - this is the problem here however, since these two actions are a bit clashing?
 
-	
+
 
  --------------------------------------------------------------------------- */
 
@@ -34,7 +35,8 @@ export const STT: React.FC<STTProps> = ({
     currLineIndex, 
     // updateIndex, 
     handleStartClick,
-	resetState
+	resetState,
+	startFromDiffLine
 }) => {
 
     const fuzzball = require('fuzzball');
@@ -68,24 +70,51 @@ export const STT: React.FC<STTProps> = ({
         // this points to the parent component to alert the highlighting to start
         handleStartClick(true);
 
-		
-
 		// if currLineIndex, then don't change it to 0
 		// currLineIndex.current === 0 ? updateIndex(0) : null;
         // updateIndex(0);
     
         startRef.current = true;
-		resetState.current = false;
+		// resetState.current = false;
 		// resetState.current ? resetState.current = false : null;
         // if resetRef is set to true, then set it to false, otherwise don't touch
         resetRef.current ? resetRef.current = false : null;
+
+		// if start from different line is true, then we want to start from there
+		// otherwise, start from 0
+		// if (startFromDiffLine.current) {
+		// 	startDialogue(currLineIndex.current);
+		// } else {
+		// 	startDialogue(0);
+		// }
+
+		// so we want to work with this
+		// currLineIndex.current = 0;
 
         // set a 3 second timeout before starting the script 
         setTimeout(() => {
 			audioContext.resume().then(() => {
 				// if currLineIndex has a value other than 0 then start from there
-				currLineIndex.current !== 0 ? startDialogue(currLineIndex.current) : startDialogue(0);
+				// this is where the issue is coming in from.. 
+				// do we want to reset or do we want to click 
+				// reset is TRUE only until the user clicks a line.. 
+				// currLineIndex.current !== 0 ? startDialogue(currLineIndex.current) : startDialogue(0);
+
+				// if reset is false, AND currLineIndex is greater than 0, then start from that line
+				// !resetState.current && currLineIndex.current !== 0 ? startDialogue(currLineIndex.current) : startDialogue(0);
 				// startDialogue(0);
+
+				// if startfrom different line is true && currline index is not 0
+				// then start from that line
+				// otherwise, we want to start from 0 
+
+				if (startFromDiffLine.current && currLineIndex.current !== 0) {
+					startDialogue(currLineIndex.current);
+				} else {
+					currLineIndex.current = 0;
+					startDialogue(0);
+				}
+
 			});
         }, 3000);
     }
@@ -97,9 +126,14 @@ export const STT: React.FC<STTProps> = ({
         currIndex = 0;
 		// when we click reset, do we want to reset the index to 0? or just clear it 
         // updateIndex(0);
+
+		// theres almost a lag period of when the current line index gets updated 
+		// because its getting set after the next one, almost like a cyclical update 
+
 		currLineIndex.current = 0;
 		console.log('CURRENTLINEINDE SHOULD BE 0', currLineIndex.current);
 		resetState.current = true;
+		startFromDiffLine.current = false;
         handleStartClick(false);
 		
 		// stop the audio and / or speech recognition upon reset
@@ -211,7 +245,7 @@ export const STT: React.FC<STTProps> = ({
         const scriptLineWithoutParenthesis = script[currIndex].line?.replace(/ *\([^)]*\) */g, "");
 
         const score = fuzzball.ratio(transcribed, scriptLineWithoutParenthesis);
-        if (score > 70) {
+        if (score > 60) {
             currIndex++;
             // updateIndex(currIndex);
 			currLineIndex.current = currIndex;

@@ -12,7 +12,8 @@ export interface ScriptLineObject {
 	currLineIndex: React.MutableRefObject<number>,
     startClicked?: boolean,
     addScenePauses: Function,
-	resetButton: React.MutableRefObject<boolean>
+	resetButton: React.MutableRefObject<boolean>,
+	startFromDiffLine: React.MutableRefObject<boolean>
 	// handleCurrentLine: Function
 }
 
@@ -26,7 +27,8 @@ export const ScriptLine: React.FC<ScriptLineObject> = ({
 	startClicked, 
 	pauseSeconds, 
 	addScenePauses,
-	resetButton
+	resetButton,
+	startFromDiffLine
 	// handleCurrentLine 
 }) => {
 
@@ -53,9 +55,35 @@ export const ScriptLine: React.FC<ScriptLineObject> = ({
 			// indexOfCurrLine to the clicked index
 			// in this component, it will only be used to determine which line to highlight.
 			// handleCurrentLine(lineIndex);
+
+			// if reset is true, we want to set to false 
+
+			// if (resetButton.current) {
+			// 	currLineIndex.current = lineIndex;
+			// } 
+
+			// if clicked, we want to set resetButton to false and update the lineindex
+			// resetButton.current = false;
+			// currLineIndex.current = lineIndex;
+
+			// we want to make startfromdiffline true 
+			startFromDiffLine.current = true;
 			currLineIndex.current = lineIndex;
 
-			console.log('RESETBUTTON CURRENT', resetButton.current);
+			// we ONLY want this to get updated / changed IF the line gets clicked 
+			// right now, it's pulling from the updated index and simply applying it
+			// but we need another guardrail to determine IF this button has been clicked.. 
+
+			// reset will not be true on the first rendering (when the script loads for the first time)
+			// however, after that, anytime the script is played it will be true in between the time 
+			// so i think this logic makes sense 
+			// BUT now the edge case comes into play in the sense that if a user has already uploaded, 
+			// and is using it for the sceond time but wants to start from a different line, 
+			// this logic will prevent it 
+
+			// currLineIndex.current = lineIndex;
+
+			// console.log('RESETBUTTON CURRENT', resetButton.current);
 		}
 
         if (direction) {

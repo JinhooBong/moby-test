@@ -10,7 +10,8 @@ export interface ScriptProps {
     startClicked: boolean,
     handleScenePause: Function,
 	// handleCurrentLine: Function
-	resetButton: React.MutableRefObject<boolean>;
+	resetButton: React.MutableRefObject<boolean>,
+	startFromDiffLine: React.MutableRefObject<boolean>
 }
 
 export const Script: React.FC<ScriptProps> = ({ 
@@ -18,7 +19,8 @@ export const Script: React.FC<ScriptProps> = ({
 	currentLineIndex, 
 	startClicked,
 	handleScenePause,
-	resetButton
+	resetButton,
+	startFromDiffLine
 	// handleCurrentLine
 }) => {
 
@@ -35,7 +37,9 @@ export const Script: React.FC<ScriptProps> = ({
 			});
 		  }
 		}
-	  }, [currentLineIndex]);
+	  }, [currentLineIndex.current]);
+
+	  // mutable ref objects don't cause re-renders, so this component might not work... 
 
     return (
         <div ref={containerRef} style={{ height: "85vh", overflowY: "auto", width: "70vw", maxWidth: "800px", backgroundColor: "#FAF9F6", padding: "20px 50px", boxShadow: "10px 10px 10px 1px rgba(0, 0, 0, .2)" }}>
@@ -51,6 +55,7 @@ export const Script: React.FC<ScriptProps> = ({
                     audioBuffer={line.audioBuffer}
                     addScenePauses={handleScenePause}
 					resetButton={resetButton}
+					startFromDiffLine={startFromDiffLine}
 					// handleCurrentLine={handleCurrentLine}
                     />
             })}
