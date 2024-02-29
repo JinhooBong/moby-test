@@ -170,13 +170,13 @@ export const UploadForm: React.FC<UploadFormProps> = ({
     }
 
     return (
-        <>
-            <div>
-                <form onSubmit={(e) => parseFileIntoPDF(e)}>
-                    <input type="file" name="file" onChange={(e) => setFile( e.target.files?.[0])} />
-                    <input type="submit" value="Upload" />
-                </form>
-            </div>
-        </>
+		<div>
+			<form onSubmit={(e) => parseFileIntoPDF(e)}>
+				<div>
+					<input type="file" name="file" onChange={(e) => setFile( e.target.files?.[0])} />
+					<input type="submit" value="Upload" />
+				</div>
+			</form>
+		</div>
     )
 }
