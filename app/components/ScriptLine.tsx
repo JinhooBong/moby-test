@@ -1,4 +1,9 @@
 import React from "react";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 export interface ScriptLineObject {
     index: number, 
@@ -32,20 +37,23 @@ export const ScriptLine: React.FC<ScriptLineObject> = ({
 	// handleCurrentLine 
 }) => {
 
-        const [showPause, setShowPause] = React.useState(false);
+        // const [showPause, setShowPause] = React.useState(false);
 
-        const handleYesClick = () => {
-            setShowPause(true);
-        }
+        // const handleYesClick = () => {
+        //     setShowPause(true);
+        // }
 
-        const handleNoClick = () => {
-            setShowPause(false);
-        }
+        // const handleNoClick = () => {
+        //     setShowPause(false);
+        // }
+
+		const pauseSecondsRef = React.useRef<number>(0);
 
         const handlePause = (index: number | undefined, seconds: string) => {
             const numOfSeconds = parseInt(seconds);
             if (index) {
                 addScenePauses(index, numOfSeconds);
+				pauseSecondsRef.current = numOfSeconds;
             }
         }  
 
@@ -86,12 +94,21 @@ export const ScriptLine: React.FC<ScriptLineObject> = ({
 			// console.log('RESETBUTTON CURRENT', resetButton.current);
 		}
 
+		const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+		const open = Boolean(anchorEl);
+		const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+			setAnchorEl(event.currentTarget);
+		};
+		const handleClose = () => {
+			setAnchorEl(null);
+		};
+
         if (direction) {
             return (
                 <div style={{ minWidth: "650px", margin: "20px auto", display: "flex", justifyContent: "space-evenly", padding: "0 50px" }}>
                     <p className="scriptFont" style={{ width: "75%", textAlign: "left" }}>{direction}</p>
-					<div style={{ width: "25%" }}>
-						<p>Add a pause?: 
+					<div style={{ width: "25%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+						{/* <p>Add a pause?: 
 							<button style={{ border: "1px solid white", margin: "0px 10px" }} onClick={() => handleYesClick()}>Yes</button> 
 							<button style={{ border: "1px solid white" }} onClick={() => handleNoClick()}>No</button> 
 							{showPause ? <input 
@@ -102,7 +119,39 @@ export const ScriptLine: React.FC<ScriptLineObject> = ({
 								onChange={(e) => handlePause(index, e.target.value)}
 								/> 
 							: <></>}
-						</p>
+						</p> */}
+						<div>
+							<IconButton
+								aria-label="more"
+								id="long-button"
+								aria-controls={open ? 'long-menu' : undefined}
+								aria-expanded={open ? 'true' : undefined}
+								aria-haspopup="true"
+								onClick={handleClick}
+							>
+								<MoreHorizIcon />
+							</IconButton>
+							<Menu
+								id="long-menu"
+								MenuListProps={{
+									'aria-labelledby': 'long-button',
+									'className': 'pauseMenu'
+								}}
+								anchorEl={anchorEl}
+								open={open}
+								onClose={handleClose}
+							>
+								<p style={{ fontSize: "14px" }}>Add a pause? </p>
+								<input 
+									type="number" 
+									style={{ height: "20px", width: "50px", color: "black", textAlign: "center", margin: "0px 10px" }} 
+									min="0" max="20" 
+									value={pauseSecondsRef.current} 
+									onChange={(e) => handlePause(index, e.target.value)}
+								/> 
+							</Menu>
+						</div>
+								
 					</div>
                 </div>
             )
