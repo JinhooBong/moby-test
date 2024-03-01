@@ -16,6 +16,7 @@ proving to be a pretty big blocker.
 
 
 export async function POST( request: NextRequest ) {
+
     const data = await request.formData();
     const uploadedFile: File | null = data.get('file') as unknown as File;
 
