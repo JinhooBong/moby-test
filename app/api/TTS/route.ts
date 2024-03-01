@@ -3,11 +3,10 @@ import fetch from 'node-fetch';
 
 export async function POST(request: NextRequest) {
 
-    let rando = Math.floor(Math.random() * 1000) + 10;
-
     let text = (await new Response(request.body).text());
-    console.log('TTS body', text);
+    // console.log('TTS body', text);
 
+	// when we switch over to paid and more complex voices, we'll have to adjust here
     const url = 'https://api.play.ht/api/v2/tts/stream';
 
     const options = {
@@ -30,8 +29,6 @@ export async function POST(request: NextRequest) {
 
     const response = await fetch(url, options);
     const readableStream = response.body;
-
-    // readableStream ? readableStream.pipe(fs.createWriteStream(`./audio_${rando}.mp3`)) : null;
 
     let buffer: Buffer = await streamToBuffer(readableStream);
 

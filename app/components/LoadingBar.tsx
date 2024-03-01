@@ -1,5 +1,4 @@
 import React from "react";
-import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -18,10 +17,8 @@ export const LoadingBar: React.FC<LoadingBarProps> = ({
     return (
         <>
             <Box sx={{ width: '60vw', marginBottom: '20px' }}>
-                {/* <LinearProgress variant="determinate" value={progress} /> */}
 				<CircularProgress />
             </Box>
-            {/* <p>Loading...</p> */}
             {parseLoading || gptLoading ? <p>Parsing your script...</p> : <></>}
             {ttsLoading ? <p>Generating AI voices...</p> : <></>}
         </>

@@ -25,8 +25,13 @@ export async function POST( request: NextRequest ) {
 
     try {
         // Your asynchronous operation, such as fetching data from an API
-        const data = await parsePDF(uploadedFile);
-    
+        const data = await parsePDF(uploadedFile) as string;
+		
+		// how to check if data is empty?
+		if (data.length === 50) {
+			return NextResponse.json({ message: "Internal Server Error"}, { status: 500 });
+		}
+
         // Once the promise is fulfilled, send the response
         return NextResponse.json({ message: data });
       } catch (error) {

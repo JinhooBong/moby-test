@@ -14,35 +14,11 @@ export interface ScriptObject {
 
 export default function Home() {
     
-    // user dependent state variables
     const [script, setScript] = React.useState<ScriptObject>();
     const [showScript, setShowScript] = React.useState<boolean | undefined>(false);
-    // const [indexOfCurrLine, setIndexOfCurrLine] = React.useState<number>(0);
 	const indexOfCurrLineRef = React.useRef(0);
 	const resetButtonRef = React.useRef(false);
 	const startFromDiffLineRef = React.useRef(false);
-
-	/* 
-
-		current line index remains at 0 even as the script starts 
-		it increments as the script continues 
-
-		with the introduction of line click, we want to update the current line index
-		with the index of the line that the user clicks 
-		then when we click start we have the ability to start the dialogue from the chosen index 
-
-		when we click reset, we want everything to go back to 0 
-		however, since the line is clicked, the current line index gets updated in SCRIPTLINE.TSX 
-
-		if reset is true, we want the SCRIPTLINE.TSX to have the currentlineindex udpated to 0
-		however, we still want to give it the ability to handle the click 
-
-		but reset is true from the time that the reset button is clicked, and the start button is clicked 
-		in between that time, if we try to click a line, it wouldn't register. 
-
-		if the user clicks, and reset is true THEN we update
-	
-	*/
 
     const [listOfCharacters, setListOfCharacters] = React.useState<string[]>([]);
     const [selectedCharacter, setSelectedCharacter] = React.useState<string | undefined>("");
@@ -149,10 +125,6 @@ export default function Home() {
         setSelectedCharacter(character);
     }    
 
-    // const handleIndexUpdate = (index: number) => {
-    //     setIndexOfCurrLine(index);
-    // }
-
     const handleClickStart = (click: boolean) => {
         setStartClicked(click);
         setCountdown(3); 
@@ -202,19 +174,15 @@ export default function Home() {
                     : <></>}
                     <Script 
                         scriptToDisplay={script.lines} 
-                        // currentLineIndex={indexOfCurrLine} 
 						currentLineIndex={indexOfCurrLineRef}
                         startClicked={startClicked}
                         handleScenePause={handleSecondsToPause}
 						resetButton={resetButtonRef}
 						startFromDiffLine={startFromDiffLineRef}
-						// handleCurrentLine={handleIndexUpdate}
                         /> 
                     <STT script={script.lines} 
                         userSelectedCharacter={selectedCharacter} 
-                        // currLineIndex={indexOfCurrLine} 
 						currLineIndex={indexOfCurrLineRef}
-                        // updateIndex={handleIndexUpdate}
                         handleStartClick={handleClickStart}
 						resetState={resetButtonRef}
 						startFromDiffLine={startFromDiffLineRef}

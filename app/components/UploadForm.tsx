@@ -48,12 +48,14 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             const textResponse = await res.json();
             // pdfAPI returns a string 
             const pdfAPIResponse = textResponse.message;
-            console.log('pdf response: ', pdfAPIResponse);
 
-            parseIntoJSON(pdfAPIResponse);
+			parseIntoJSON(pdfAPIResponse);
 
-            isPDFLoading(false);
+			isPDFLoading(false);
 
+			// if textRepsonse is undefined we want to throw error
+			// TODO: ERROR HANDLING
+			
             return;
         } catch (e: any) {
             console.error('pdf parse error: ', e);
@@ -77,7 +79,6 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
             const gptParsedResponse = await gptRes.json();
             const parsedJSONScript = JSON.parse(gptParsedResponse.content);
-            console.log('GPT response', parsedJSONScript);
 
             const audioSuccessfullyAttached = await attachAudioObjects(parsedJSONScript.lines);
 
@@ -100,26 +101,6 @@ export const UploadForm: React.FC<UploadFormProps> = ({
     const attachAudioObjects = async (scriptLines: ScriptLineObject[]) => {
         
         const audioContext = new AudioContext();
-
-        // forEach is synchronous so until this operation is complete, it won't reach the return 
-		// however we are running into edge cases where the script does appear "ready" without the audio objects attached
-        // scriptLines.forEach((lineObj: ScriptLineObject) => {
-        //     if ((!lineObj.direction && !lineObj.directions) && lineObj.line) {
-        //         let lineToTranspose = lineObj.line.replace(/ *\([^)]*\) */g, "");
-        //         convertTextToSpeech(lineToTranspose)
-        //             .then(async (buffer) => {
-        //                 // console.log('type buffer', typeof buffer);
-        //                 // const arrayBuffer = Buffer.from(buffer!);
-        //                 const arrayBuffer = buffer ? new Uint8Array(buffer).buffer : null;
-        //                 // console.log('array', typeof arrayBuffer);
-        //                 arrayBuffer ? await audioContext.decodeAudioData(arrayBuffer, (decodedBuffer) => {
-        //                     // console.log('decoded', decodedBuffer);
-        //                     lineObj.audioBuffer = decodedBuffer;
-        //                     // lineObj.audioBuffer = buffer;
-        //                 }) : (console.log('ERROR')); // catch the error
-        //             });
-		// 		}
-		// 	});
 
 		// gpt generated code --------------------------------------------------------
 		// Use Promise.all to wait for all asynchronous operations to complete
@@ -156,11 +137,8 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             });
 
             const res_data = await res.json();
-            // console.log('res data?', res_data);
-            // console.log('buffer', res_data.buffer);
             const arrayBuffer = Buffer.from(res_data.buffer);
-            // console.log('after', arrayBuffer);
-
+			
             return arrayBuffer;
 
         } catch (e: any) {

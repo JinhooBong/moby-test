@@ -8,9 +8,10 @@ export async function POST(request: NextRequest) {
 
     // grab the script in text form 
     let scriptInTextForm = await new Response(data).text();
-    console.log("scriptInTextForm", scriptInTextForm);
 
-    console.log("entered gpt");
+    // console.log("scriptInTextForm", scriptInTextForm);
+
+    // console.log("entered gpt");
 
     // now we send scriptInTextForm to openAI's chat completion api
     const completion = await openai.chat.completions.create({
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
         response_format: { type: "json_object" },
     });
 
-    console.log("returned msg", completion.choices[0].message.content);
+    // console.log("returned msg", completion.choices[0].message.content);
 
     return NextResponse.json({ success: true, content: completion.choices[0].message.content })
 }

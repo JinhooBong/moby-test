@@ -8,14 +8,6 @@ interface ChooseCharacterProps {
 	userCharacter?: string
 }
 
-/* 
-    A component that will render before the script so that the user can identify
-    which character they will be reading for. 
-
-    Input: an array of strings 
-
-    Output: updating the state in the parent value with the chosen character
-*/
 export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({ 
 	characters, 
 	setCharacter, 
@@ -34,8 +26,8 @@ export const ChooseCharacter: React.FC<ChooseCharacterProps> = ({
 	}, [characters]);
 
     const handleInitialChange = (e: any) => {
-        console.log('e', e.target.value);
-        console.log('selected', selectedCharacter);
+        // console.log('e', e.target.value);
+        // console.log('selected', selectedCharacter);
         setSelectedCharacter(e.target.value as string);
     };
 
