@@ -1,6 +1,6 @@
 import { writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
-import PDFParser from 'pdf2json'; // To parse the pdf
+import * as PDFParser from 'pdf2json'; // To parse the pdf
 
 
 /* ------------------------------------------------------------------
