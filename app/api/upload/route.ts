@@ -17,6 +17,9 @@ proving to be a pretty big blocker.
 
 export async function POST( request: NextRequest ) {
 
+	console.log('Current working directory:', process.cwd());
+	console.log('Resolved path:', require.resolve('pdf2json'));
+
     const data = await request.formData();
     const uploadedFile: File | null = data.get('file') as unknown as File;
 
@@ -50,7 +53,8 @@ const parsePDF = async (file: File) => {
     
         // convert the uploaded file into a temporary file
         const temp = `/tmp/${fileName}.pdf`;
-    
+
+		const dir = 'node_modules/pdfjs-dist/es5/build/pdf.js';
         // Convert arrayBuffer to Buffer
         const fileBuffer = Buffer.from(await file.arrayBuffer());
     
