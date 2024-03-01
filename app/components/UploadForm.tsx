@@ -46,7 +46,6 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             });
 
             const textResponse = await res.json();
-			console.log('text', textResponse);
             // pdfAPI returns a string 
             const pdfAPIResponse = textResponse.message;
 
