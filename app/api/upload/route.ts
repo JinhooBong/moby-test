@@ -1,6 +1,8 @@
 import { writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
-import PDFParser from 'pdf2json'; // To parse the pdf
+// import PDFParser from 'pdf2json'; // To parse the pdf
+
+const PDFParser = require('pdf2json');
 
 /* ------------------------------------------------------------------
 
@@ -54,7 +56,6 @@ const parsePDF = async (file: File) => {
         // convert the uploaded file into a temporary file
         const temp = `/tmp/${fileName}.pdf`;
 
-		const dir = 'node_modules/pdfjs-dist/es5/build/pdf.js';
         // Convert arrayBuffer to Buffer
         const fileBuffer = Buffer.from(await file.arrayBuffer());
     
