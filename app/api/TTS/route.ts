@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fetch from 'node-fetch';
+// import * as PlayHT from 'playht';
+
+// PlayHT.init({
+//   apiKey: process.env.PLAYHT_KEY!,
+//   userId: process.env.PLAYHT_USERID!,
+// });
 
 export async function POST(request: NextRequest) {
 
@@ -9,13 +15,15 @@ export async function POST(request: NextRequest) {
 	// when we switch over to paid and more complex voices, we'll have to adjust here
     const url = 'https://api.play.ht/api/v2/tts/stream';
 
-    const options = {
+    const options = { 
         method: 'POST',
         headers: {
             accept: 'audio/mpeg',
             'content-type': 'application/json',
-            AUTHORIZATION: process.env.PLAYHT_KEY!,
-            'X-USER-ID': process.env.PLAYHT_USERID!,
+            // AUTHORIZATION: process.env.PLAYHT_KEY!,
+            // 'X-USER-ID': process.env.PLAYHT_USERID!,
+			Authorization: `Bearer ${process.env.PLAYHT_KEY!}`,
+    		'X-USER-ID': process.env.PLAYHT_USERID!,
         },
         body: JSON.stringify({
             voice_engine: 'PlayHT2.0-turbo',
