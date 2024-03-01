@@ -138,8 +138,9 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             });
 
             const res_data = await res.json();
+			console.log('resdata', res_data);
             const arrayBuffer = Buffer.from(res_data.buffer);
-
+			console.log('arrayBuffer', arrayBuffer);
             return arrayBuffer;
 
         } catch (e: any) {

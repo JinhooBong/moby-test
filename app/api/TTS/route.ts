@@ -28,6 +28,9 @@ export async function POST(request: NextRequest) {
     };
 
     const response = await fetch(url, options);
+	
+	console.log('response', response);
+
     const readableStream = response.body;
 
     let buffer: Buffer = await streamToBuffer(readableStream);
