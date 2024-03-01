@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
             },
             { role: "user", content: scriptInTextForm },
         ],
-        model: "gpt-4-1106-preview",
-		// model: "gpt-3.5-turbo-1106",
+        // model: "gpt-4-1106-preview",
+		model: "gpt-3.5-turbo-1106",
         response_format: { type: "json_object" },
     });
 
