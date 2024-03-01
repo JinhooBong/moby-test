@@ -46,6 +46,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             });
 
             const textResponse = await res.json();
+			console.log('text', textResponse);
             // pdfAPI returns a string 
             const pdfAPIResponse = textResponse.message;
 
@@ -138,7 +139,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
             const res_data = await res.json();
             const arrayBuffer = Buffer.from(res_data.buffer);
-			
+
             return arrayBuffer;
 
         } catch (e: any) {

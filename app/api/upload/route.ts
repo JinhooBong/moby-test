@@ -1,8 +1,7 @@
 import { writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
-// import PDFParser from 'pdf2json'; // To parse the pdf
+import PDFParser from 'pdf2json'; // To parse the pdf
 
-const PDFParser = require('pdf2json');
 
 /* ------------------------------------------------------------------
 
@@ -19,8 +18,8 @@ proving to be a pretty big blocker.
 
 export async function POST( request: NextRequest ) {
 
-	console.log('Current working directory:', process.cwd());
-	console.log('Resolved path:', require.resolve('pdf2json'));
+	// console.log('Current working directory:', process.cwd());
+	// console.log('Resolved path:', require.resolve('pdf2json'));
 
     const data = await request.formData();
     const uploadedFile: File | null = data.get('file') as unknown as File;
@@ -30,19 +29,22 @@ export async function POST( request: NextRequest ) {
     } 
 
     try {
-        // Your asynchronous operation, such as fetching data from an API
+        // // Your asynchronous operation, such as fetching data from an API
         const data = await parsePDF(uploadedFile) as string;
 		
 		// how to check if data is empty?
-		if (data.length === 50) {
-			return NextResponse.json({ message: "Internal Server Error"}, { status: 500 });
-		}
+		// if (data.length === 50) {
+		// 	return NextResponse.json({ message: "Internal Server Error"}, { status: 500 });
+		// }
 
         // Once the promise is fulfilled, send the response
         return NextResponse.json({ message: data });
+
       } catch (error) {
+
         console.error(error);
         return NextResponse.json({ error: 'Internal Server Error' });
+
       }
 }
 
@@ -58,7 +60,7 @@ const parsePDF = async (file: File) => {
 
         // Convert arrayBuffer to Buffer
         const fileBuffer = Buffer.from(await file.arrayBuffer());
-    
+		
         // save the buffer as a file
         await writeFile(temp, fileBuffer);
     
