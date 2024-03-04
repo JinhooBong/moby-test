@@ -108,6 +108,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 		await Promise.all(scriptLines.map(async (lineObj: ScriptLineObject) => {
 			if ((!lineObj.direction && !lineObj.directions) && lineObj.line) {
 				let lineToTranspose = lineObj.line.replace(/ *\([^)]*\) */g, "");
+				
 				try {
 					const buffer = await convertTextToSpeech(lineToTranspose);
 					const arrayBuffer = buffer ? new Uint8Array(buffer).buffer : null;
@@ -130,6 +131,8 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 
     const convertTextToSpeech = async (line: string) => {
 
+		// const audioContext = new AudioContext();
+
         try {
             const res = await fetch('/api/TTS', {
                 method: 'POST',
@@ -137,10 +140,23 @@ export const UploadForm: React.FC<UploadFormProps> = ({
                 headers: { 'Content-Type': 'audio/mp3'}
             });
 
+			// maybe we can set up a check here to make sure taht the audio returned IS decode-able
+			// otherwise, we have to try with that one again
+
             const res_data = await res.json();
-			console.log('resdata', res_data);
+			// console.log('resdata', res_data);
             const arrayBuffer = Buffer.from(res_data.buffer);
-			console.log('arrayBuffer', arrayBuffer);
+			// console.log('arrayBuffer', arrayBuffer);
+
+			// how can i turn this into a boolean function?
+			// await audioContext.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+
+			// }, (error) => {
+			// 	// this is error callback 
+			// 	// so maybe if the error occurs, we can try again? but that also depends on what the error is
+			// 	// .. is it simply a one-off issue? or is it that the first line is actually undecodeable
+			// })
+
             return arrayBuffer;
 
         } catch (e: any) {
