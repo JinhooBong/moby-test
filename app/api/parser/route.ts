@@ -39,6 +39,10 @@ export async function POST(request: NextRequest) {
                 role: "system",
                 content:"Please separate character names, their lines, and scene directions in strict order from top to bottom. Please double check to make sure it's in order. Please return this in a JSON object. The objects should be of the following two object forms: An object with property `direction` for scene directions, and an object with properties `character` and `line` where the character name and their lines will reside. Again please make sure that the lines stay in order from top to bottom."
             },
+			{
+				role: "system",
+				content: "Usually character lines will be a character's name in all caps followed by a new line and their corresponding dialogue. Character names are surrounded by \r\n so please separate accordingly. Scene directions might include names but they are not followed by \n characters so please separate accordingly."
+			},
             { role: "user", content: scriptInTextForm },
         ],
 		model: "gpt-4-1106-preview",

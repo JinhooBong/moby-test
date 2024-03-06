@@ -46,7 +46,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
             });
 
             const textResponse = await res.json();
-			console.log('tet', textResponse);
+			// console.log('tet', textResponse);
             // pdfAPI returns a string 
             const pdfAPIResponse = textResponse.message;
 
@@ -77,12 +77,12 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 			if (!gptRes.ok) {
 				throw new Error(`Failed to fetch: ${gptRes.status} - ${gptRes.statusText}`);
 			}
-			console.log('entered gpt');
+			// console.log('entered gpt');
 
             const gptParsedResponse = await gptRes.json();
             const parsedJSONScript = JSON.parse(gptParsedResponse.content);
 
-			console.log('what is GPT response', gptParsedResponse);
+			// console.log('what is GPT response', gptParsedResponse);
 			
 			// let responseIntoJSON = [];
 
