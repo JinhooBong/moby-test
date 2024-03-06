@@ -157,10 +157,19 @@ export const STT: React.FC<STTProps> = ({
         } else {
             // console.log('entered moby block');
 
+			const numOfSecondsToPause = script[currIndex].pauseSeconds;
+
+			// number of seconds should be only defined if the property is there
+            const secondsToPause = numOfSecondsToPause ?  numOfSecondsToPause * 1000 : 0;
+
+            setTimeout(() => {
+                stopSpeechRecognition();
+            	playAudioSound(currentLine.audioBuffer);
+            	return;
+            }, secondsToPause);
+
 			// in the case that we enter Moby block, we want to stop any speech recognition
-			stopSpeechRecognition();
-            playAudioSound(currentLine.audioBuffer);
-            return;
+			
         }
     }
 

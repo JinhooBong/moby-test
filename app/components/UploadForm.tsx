@@ -77,9 +77,27 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 			if (!gptRes.ok) {
 				throw new Error(`Failed to fetch: ${gptRes.status} - ${gptRes.statusText}`);
 			}
+			console.log('entered gpt');
 
             const gptParsedResponse = await gptRes.json();
             const parsedJSONScript = JSON.parse(gptParsedResponse.content);
+
+			console.log('what is GPT response', gptParsedResponse);
+			
+			// let responseIntoJSON = [];
+
+			// for (let content of gptParsedResponse.content) {
+			// 	responseIntoJSON.push(JSON.parse(content));
+			// }
+
+			// const parsedJSONScript: { lines: ScriptLineObject[] } = {lines: []};
+
+			// for (let response of responseIntoJSON) {
+			// 	let lineArr = response.lines;
+			// 	for (let i = 0; i < lineArr.length; i++) {
+			// 		parsedJSONScript.lines.push(lineArr[i]);
+			// 	}
+			// }
 
             const audioSuccessfullyAttached = await attachAudioObjects(parsedJSONScript.lines);
 
@@ -108,6 +126,7 @@ export const UploadForm: React.FC<UploadFormProps> = ({
 		await Promise.all(scriptLines.map(async (lineObj: ScriptLineObject) => {
 			if ((!lineObj.direction && !lineObj.directions) && lineObj.line) {
 				let lineToTranspose = lineObj.line.replace(/ *\([^)]*\) */g, "");
+				lineToTranspose = lineToTranspose.replace(/\n/g, "");
 				
 				try {
 					const buffer = await convertTextToSpeech(lineToTranspose);

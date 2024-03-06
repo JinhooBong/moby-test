@@ -98,8 +98,14 @@ export async function POST(request: NextRequest) {
 	let text = (await new Response(request.body).text());
 	// console.log('TTS body', text);
 	
+<<<<<<< HEAD
 	// we need to take out the "\n" in the text 
 	const properText = text.replace("\n", "");
+=======
+	// const properText = text.replace(/\n/g, "");
+	const properText = text.replace("\n", "");
+	// console.log('TTS body', properText);
+>>>>>>> 71ee2573 (firebase launched and making some updates)
 
 	// Creates a client
 	const client = new textToSpeech.TextToSpeechClient();

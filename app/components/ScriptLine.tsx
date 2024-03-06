@@ -101,13 +101,79 @@ export const ScriptLine: React.FC<ScriptLineObject> = ({
         } else {
             return (
                 index === currLineIndex.current ? 
-                <div style={{width: "300px", textAlign: "left", margin: "auto"}} onClick={() => handleLineStart(index)}>
+                <div style={{width: "350px", textAlign: "left", margin: "auto"}} onClick={() => handleLineStart(index)}>
                     <h3 className="scriptFont" style={{ marginBottom: "2px", textAlign: "center" }}>{character?.toLocaleUpperCase()}</h3>
-					<p className="scriptFont" style={{ backgroundColor: "rgba(248,255,0, 0.9)", marginBottom: "5px", padding: "10px" }}>{line}</p>
+					<div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+						<p className="scriptFont" style={{ backgroundColor: "rgba(248,255,0, 0.9)", marginBottom: "5px", padding: "10px" }}>{line}</p>
+						<div>
+								<IconButton
+									aria-label="more"
+									id="long-button"
+									aria-controls={open ? 'long-menu' : undefined}
+									aria-expanded={open ? 'true' : undefined}
+									aria-haspopup="true"
+									onClick={handleClick}
+								>
+									<MoreHorizIcon />
+								</IconButton>
+								<Menu
+									id="long-menu"
+									MenuListProps={{
+										'aria-labelledby': 'long-button',
+										'className': 'pauseMenu'
+									}}
+									anchorEl={anchorEl}
+									open={open}
+									onClose={handleClose}
+								>
+									<p style={{ fontSize: "14px" }}>Add a pause? </p>
+									<input 
+										type="number" 
+										style={{ height: "20px", width: "50px", color: "black", textAlign: "center", margin: "0px 10px" }} 
+										min="0" max="20" 
+										value={pauseSecondsRef.current} 
+										onChange={(e) => handlePause(index, e.target.value)}
+									/> 
+								</Menu>
+							</div>
+						</div>
                 </div>
-                : <div style={{width: "300px", textAlign: "left", margin: "auto"}} onClick={() => handleLineStart(index)}>
+                : <div style={{width: "350px", textAlign: "left", margin: "auto"}} onClick={() => handleLineStart(index)}>
                     <h3 className="scriptFont" style={{ marginBottom: "2px", textAlign: "center" }}>{character?.toLocaleUpperCase()}</h3>
-                    <p className="scriptFont" style={{ marginBottom: "5px", padding: "10px" }}>{line}</p>
+					<div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                    	<p className="scriptFont" style={{ marginBottom: "5px", padding: "10px" }}>{line}</p>
+						<div>
+								<IconButton
+									aria-label="more"
+									id="long-button"
+									aria-controls={open ? 'long-menu' : undefined}
+									aria-expanded={open ? 'true' : undefined}
+									aria-haspopup="true"
+									onClick={handleClick}
+								>
+									<MoreHorizIcon />
+								</IconButton>
+								<Menu
+									id="long-menu"
+									MenuListProps={{
+										'aria-labelledby': 'long-button',
+										'className': 'pauseMenu'
+									}}
+									anchorEl={anchorEl}
+									open={open}
+									onClose={handleClose}
+								>
+									<p style={{ fontSize: "14px" }}>Add a pause? </p>
+									<input 
+										type="number" 
+										style={{ height: "20px", width: "50px", color: "black", textAlign: "center", margin: "0px 10px" }} 
+										min="0" max="20" 
+										value={pauseSecondsRef.current} 
+										onChange={(e) => handlePause(index, e.target.value)}
+									/> 
+								</Menu>
+							</div>
+						</div>
                 </div>
             )
         }
