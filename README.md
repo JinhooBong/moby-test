@@ -1,0 +1,1 @@
+A web application that serves as a script reading partner for actors. Using PDF2JSON, it scans in the provided script in PDF form, and converts it into JSON. We use OpenAI to separate character names and their corresponding lines, and scene directions. We then incorporated PlayHT for TTS but due to limitations, we shifted to use Google's TTS services. 
